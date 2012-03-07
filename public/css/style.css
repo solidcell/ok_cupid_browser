@@ -308,5 +308,9 @@ h1.linkable:hover {
 }
 
 .user {
-  margin-bottom: 15px;
+  margin: 5px 5px 15px 5px;
+}
+
+a {
+  text-decoration: none;
 }
