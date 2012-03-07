@@ -72,35 +72,38 @@ def fetch_profile_pics
   puts "Fetching #{STEP} items at a time..."
   hydra = Typhoeus::Hydra.new(:max_concurrency => 15) # keep from killing some servers
 
-  usernames = DB.execute("SELECT username FROM `profiles`").map &:pop
+  begin
+    usernames = DB.execute("SELECT username FROM `profiles`").map &:pop
 
-  usernames.each do |username|
-    if Dir.glob("profile_pictures/#{username}_*").any?
-      puts "SKIP: #{username}"
-      next
-    else
-      puts "FETCH: #{username}"
-    end
-
-    profile = @agent.get "https://www.okcupid.com/profile/#{username}/photos"
-    profile.search("//div[@id='profile_thumbs']//img/@src").each do |img_tag|
-      filename = "#{username}_#{img_tag.value.split('/').last}"
-      stored_filename = "profile_pictures/#{filename}"
-
-      next if File.exists? stored_filename
-
-      request = Typhoeus::Request.new(img_tag.value)
-      request.on_complete do |response|
-        File.open(stored_filename,"w+") do |f|
-          f.write response.body
-        end
+    usernames.each do |username|
+      if Dir.glob("profile_pictures/#{username}_*").any?
+        puts "SKIP: #{username}"
+        next
+      else
+        puts "FETCH: #{username}"
       end
 
-      hydra.queue request
-    end
-  end
+      profile = @agent.get "https://www.okcupid.com/profile/#{username}/photos"
+      profile.search("//div[@id='profile_thumbs']//img/@src").each do |img_tag|
+        filename = "#{username}_#{img_tag.value.split('/').last}"
+        stored_filename = "profile_pictures/#{filename}"
 
-  hydra.run
+        next if File.exists? stored_filename
+
+        request = Typhoeus::Request.new(img_tag.value)
+        request.on_complete do |response|
+          File.open(stored_filename,"w+") do |f|
+            f.write response.body
+          end
+        end
+
+        hydra.queue request
+      end
+    end
+
+  ensure
+    hydra.run
+  end
 end
 
 case ARGV[0]
