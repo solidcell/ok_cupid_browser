@@ -106,5 +106,9 @@ def fetch_profile_pics
   hydra.run
 end
 
-fetch_usernames
-# fetch_profile_pics
+case ARGV[0]
+  when "usernames" then fetch_usernames
+  when "pictures" then fetch_profile_pics
+  when "both" then fetch_usernames; fetch_profile_pics
+  else puts "Usage: ruby scraper.rb [usernames|pictures|both]"
+end
