@@ -1,3 +1,7 @@
 <div id="container" style="margin:auto; text-align: center;">
-  blah
+  <% @usernames.each do |username| %>
+    <div class="user" id="<%= username %>">
+      <%= username %>
+    </div>
+  <% end %>
 </div>

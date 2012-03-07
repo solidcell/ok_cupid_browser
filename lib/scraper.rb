@@ -18,7 +18,7 @@ if page.body.include? "sidebar_signin_password"
 end
 
 # Database Login
-DB = SQLite3::Database.new( "okcupid.db" )
+DB = SQLite3::Database.new( "okcupid_browser.db" )
 
 DB.execute("CREATE TABLE IF NOT EXISTS `profiles` (
     `username` varchar(128) PRIMARY KEY,
