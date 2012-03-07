@@ -2,4 +2,4 @@
 .gem
 vendor/
 tmp/
-
+*.swp

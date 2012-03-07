@@ -12,8 +12,8 @@ page = @agent.get "http://www.okcupid.com/"
 if page.body.include? "sidebar_signin_password"
   # login
   form = page.form_with :name => 'loginf'
-  form.username = "thedudeisme"
-  form.password = Base64.decode64("ZCRsJG4kYSQ=\n")
+  form.username = "i_like_lamps"
+  form.password = Base64.decode64("anVua3lhcmQxOTg3Ng==\n")
   form.submit
 end
 
@@ -36,13 +36,13 @@ def fetch_usernames
   low = 1
   dupitydup = 0
   newpitynewps = 0
-  
+
   (MAX_PROFILES/STEP).times do
     p = @agent.get "https://www.okcupid.com/match?timekey=1&matchOrderBy=SPECIAL_BLEND&use_prefs=1&discard_prefs=1&low=#{low}&count=#{STEP}&ajax_load=1"
-    
+
     usernames = p.body.scan(/usr-([_A-Za-z0-9]+)\\\"/i).each do |username|
       begin
-        # call first on uid as nokogiri gives us an array with 
+        # call first on uid as nokogiri gives us an array with
         # the uid as the only element
         q = "INSERT INTO `profiles` (username) VALUES ('#{username.first}')"
         DB.execute q
@@ -57,7 +57,7 @@ def fetch_usernames
     end
     low += STEP
   end
-  
+
   puts "#{dupitydup} dupitydups"
   puts "#{newpitynewps} newpitynewps"
 end
@@ -73,9 +73,9 @@ def fetch_profile_pics
   hydra = Typhoeus::Hydra.new(:max_concurrency => 15) # keep from killing some servers
 
   usernames = DB.execute("SELECT username FROM `profiles`")
-  
+
   puts usernames.inspect
-  
+
   exit
   usernames.each do |username|
     if Dir.glob("profile_pictures/#{username}_*").any?
@@ -84,21 +84,21 @@ def fetch_profile_pics
     else
       puts "FETCH: #{username}"
     end
-  
+
     profile = @agent.get "https://www.okcupid.com/profile/#{username}/photos"
     profile.search("//div[@id='profile_thumbs']//img/@src").each do |img_tag|
       filename = "#{username}_#{img_tag.value.split('/').last}"
       stored_filename = "profile_pictures/#{filename}"
-    
+
       next if File.exists? stored_filename
-    
+
       request = Typhoeus::Request.new(img_tag.value)
       request.on_complete do |response|
         File.open(stored_filename,"w+") do |f|
           f.write response.body
         end
       end
-    
+
       hydra.queue request
     end
   end
