@@ -1,7 +1,14 @@
 <div id="container" style="margin:auto; text-align: center;">
-  <% @usernames.each do |username| %>
+  <% @users.each do |username, paths| %>
     <div class="user" id="<%= username %>">
-      <%= username %>
+      <div class="username">
+        <%= username %>
+      </div>
+      <div class="pictures">
+        <% paths.each do |path| %>
+          <img src="<%= path %>"/>
+        <% end %>
+      </div>
     </div>
   <% end %>
 </div>

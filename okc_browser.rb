@@ -6,7 +6,13 @@ class OKCBrowser < Sinatra::Base
       SELECT username FROM profiles
     "
     db = SQLite3::Database.new "okcupid_browser.db"
-    @usernames = db.execute(q).map &:pop
+    @users = {}
+    db.execute(q).each do |username|
+      username = username.pop
+      paths = Dir.glob("public/profile_pictures/#{username}_*")
+      paths = paths.map {|path| path.gsub "public/", ""}
+      @users[username] = paths if paths.any?
+    end
     erb :index
   end
 end
