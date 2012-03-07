@@ -72,14 +72,11 @@ def fetch_profile_pics
   puts "Fetching #{STEP} items at a time..."
   hydra = Typhoeus::Hydra.new(:max_concurrency => 15) # keep from killing some servers
 
-  usernames = DB.execute("SELECT username FROM `profiles`")
+  usernames = DB.execute("SELECT username FROM `profiles`").map &:pop
 
-  puts usernames.inspect
-
-  exit
   usernames.each do |username|
     if Dir.glob("profile_pictures/#{username}_*").any?
-      puts "SKIP: #{username} already, skipping"
+      puts "SKIP: #{username}"
       next
     else
       puts "FETCH: #{username}"
