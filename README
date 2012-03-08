@@ -8,3 +8,8 @@ Fuck my doggy paddy bagel night in gale
 # http://www.cs.ucsb.edu/~mturk/Papers/mturk-CVPR91.pdf
 # http://cvdazzle.com/ AWESOME ONE
 # http://creatingwithcode.com/howto/face-detection-in-static-images-with-python/
+#
+#AJAX solutions
+# just a frame with locations
+# Mike) you select one, it requests 200 from that location
+# Jesse) while user hasn't yet clicked, load the first 100 from each location.  once one is selected, request only more from that location

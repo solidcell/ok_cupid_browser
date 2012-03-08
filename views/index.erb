@@ -1,7 +1,13 @@
+<script id="image_paths" type="text/json">
+  <%= @users.to_json %>
+</script>
+
 <div id="container" style="margin:auto; text-align: center;">
-  <% @users.each do |username, url| %>
-    <a href="http://www.okcupid.com/profile/<%= username %>" target="_blank">
-      <img data-original="<%= url %>" src="img/grey.gif" class="lazy" width="160" height="160"/>
-    </a>
-  <% end %>
+  <ul id="pictures">
+    <li data-template>
+      <a href="http://www.okcupid.com/profile/{{username}}" target="_blank">
+        <img data-original="{{url}}" src="img/grey.gif" class="lazy" width="160" height="160"/>
+      </a>
+    </li>
+  </ul>
 </div>
