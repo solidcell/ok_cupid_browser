@@ -69,7 +69,8 @@ def update_profile_details
   q = "SELECT username FROM `profiles` WHERE location IS NULL OR location = ''"
   usernames = DB.execute(q).map(&:pop)
   puts "Updating #{usernames.size} profiles"
-  usernames.each do |username|
+  usernames.each_with_index do |username,index|
+    puts "#{index}/#{usernames.size} completed" if 0 == index % 100
     p = @ok.profile_for username
     begin
       qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location)
