@@ -310,13 +310,3 @@ h1.linkable:hover {
 a {
   text-decoration: none;
 }
-
-ul.list {
-  height: 400px;
-  overflow: auto;
-  border: solid black 1px;
-}
-
-li.template {
-  display: inline;
-}

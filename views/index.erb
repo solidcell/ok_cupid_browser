@@ -1,11 +1,7 @@
 <div id="container" style="margin:auto; text-align: center;">
-  <ul class='list' last="0">
-    <li class='template'>
-      <a href="http://www.okcupid.com/profile/" class="Profile_URL" target="_blank">
-        <img src="" class="Image_URL"/>
-      </a>
-    </li>
-
-    <div id="infinite-scroll"></div>
-  </ul>
+  <% @users.each do |username, url| %>
+    <a href="http://www.okcupid.com/profile/<%= username %>" target="_blank">
+      <img src="<%= url %>"/>
+    </a>
+  <% end %>
 </div>
