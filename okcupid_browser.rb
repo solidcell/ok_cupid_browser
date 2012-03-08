@@ -4,7 +4,7 @@ class OKCBrowser < Sinatra::Base
   get "/pics" do
     content_type :json
     paths = Dir.entries("public/profile_pictures/small")[2..-1]
-    paths = paths[params[:last].to_i, 10]
+    paths = paths[params[:last].to_i, 20]
     paths = paths.map do |path|
       {
         "Image_URL" => "profile_pictures/small/#{path}",

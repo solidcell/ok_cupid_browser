@@ -7,9 +7,9 @@ function fetch_pics() {
     dataType: 'json',
     success: function(data){
       //TODO: if data is empty, then remove #infinite-scroll
-      $('li.template').loadJSON(data);
+      $('li.template:first').loadJSON(data);
       var last = parseInt($('ul.list').attr('last'));
-      last = last + 10;
+      last = last + 20;
       $('ul.list').attr('last', last);
     }
   });

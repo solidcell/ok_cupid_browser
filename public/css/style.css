@@ -315,8 +315,8 @@ ul.list {
   height: 400px;
   overflow: auto;
   border: solid black 1px;
+}
 
-  li.template {
-    //display: none;
-  }
+li.template {
+  display: inline;
 }
