@@ -1,13 +1,9 @@
 <div id="container" style="margin:auto; text-align: center;">
   <% @users.each do |username, paths| %>
-    <div class="user" id="<%= username %>">
-      <div class="pictures">
-        <% paths.each do |path| %>
-          <a href="http://www.okcupid.com/profile/<%= username %>" target="_blank">
-            <img src="<%= path %>"/>
-          </a>
-        <% end %>
-      </div>
-    </div>
+    <% paths.each do |path| %>
+      <a href="http://www.okcupid.com/profile/<%= username %>" target="_blank">
+        <img src="<%= path %>"/>
+      </a>
+    <% end %>
   <% end %>
 </div>
