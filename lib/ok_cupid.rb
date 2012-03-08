@@ -30,7 +30,7 @@ class OkCupid
     @agent.get url
   end
   
-  # usr-([_A-Za-z0-9]+)\\\".*?location\\\">([A-Za-z-_, ]+)<\/p>
+  # filters = ["JOIN","SPECIAL_BLEND"]
   def match_usernames max_profiles = 2000, step = 500
     usernames = []
     
