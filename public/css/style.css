@@ -306,3 +306,11 @@ h1.linkable:hover {
 	-webkit-box-shadow: 2px 2px 4px #D6D6D6;
 	box-shadow: 2px 2px 4px #D6D6D6;
 }
+
+.user {
+  margin: 5px 5px 15px 5px;
+}
+
+a {
+  text-decoration: none;
+}
