@@ -1,7 +1,6 @@
 Fuck my doggy paddy bagel night in gale
 
-! Facial Recognition Resources
-
+# ************ Facial Recognition Resources **************
 # http://jeffkreeftmeijer.com/2011/comparing-images-and-creating-image-diffs/
 # http://scikit-learn.org/stable/auto_examples/applications/face_recognition.html#example-applications-face-recognition-py
 # http://libface.sourceforge.net/file/Features.html
@@ -9,7 +8,16 @@ Fuck my doggy paddy bagel night in gale
 # http://cvdazzle.com/ AWESOME ONE
 # http://creatingwithcode.com/howto/face-detection-in-static-images-with-python/
 #
-#AJAX solutions
-# just a frame with locations
-# Mike) you select one, it requests 200 from that location
-# Jesse) while user hasn't yet clicked, load the first 100 from each location.  once one is selected, request only more from that location
+# ******************** AJAX solutions ********************
+# just a frame with city names when page is requested
+#
+# Mike) you select one, it requests 200 from that city
+# Jesse) while user hasn't yet clicked, load the first 100 from each city.
+#        once one is selected, request only more from that location
+#
+# always keep 100 urls below the window ready to be lazy loaded
+#
+# load the next 50 images below the current bottom
+#
+# while not doing anything else, request the first 100 urls from each city
+# if you don't already have them
