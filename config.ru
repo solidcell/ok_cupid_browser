@@ -14,5 +14,5 @@ else
   $stderr.reopen(log)
 end
 
-require './okc_browser'
+require './okcupid_browser'
 run OKCBrowser
