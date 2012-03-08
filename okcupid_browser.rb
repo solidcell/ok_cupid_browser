@@ -3,23 +3,15 @@ class OKCBrowser < Sinatra::Base
 
   get "/pics" do
     content_type :json
-[
-    {
-        "ID" => 17,
-        "Name" => "Emkay Entertainments",
-        "Address" => "Nobel House, Regent Centre"
-    },
-    {
-        "ID" => 18,
-        "Name" => "The Empire",
-        "Address" => "Milton Keynes Leisure Plaza"
-    },
-    {
-        "ID" => 19,
-        "Name" => "Asadul Ltd",
-        "Address" => "Hophouse"
-    }
-].to_json
+    paths = Dir.entries("public/profile_pictures/small")[2..-1]
+    paths = paths[params[:last].to_i, 10]
+    paths = paths.map do |path|
+      {
+        "Image_URL" => "profile_pictures/small/#{path}",
+        "Profile_URL" => "http://www.okcupid.com/profile/some_username"
+      }
+    end
+    paths.to_json
   end
 
   get "/" do
