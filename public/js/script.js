@@ -4,11 +4,16 @@ $(document).ready(function() {
   image_paths = $.parseJSON(image_paths);
   tempo = Tempo.prepare("pictures").render(image_paths);
 
+  // TODO: we probably don't need this since we only load
+  //       a handful of images past the bottom
+  function lazyload() {
+    $("img.lazy").lazyload({ threshold: 200 });
+  }
   // Set the list templates to lazy load the images
-  $("img.lazy").lazyload();
+  lazyload();
 
   // Request more JSON when scrolling close to the bottom
-  pixelBuffer = 200;
+  pixelBuffer = 300;
   alreadyloading = false;
   last = parseInt($('#pictures').attr('last'));
   $(window).scroll(function() {
@@ -22,7 +27,7 @@ $(document).ready(function() {
           {last: last},
           function(data) {
             tempo.append(data);
-            $("img.lazy").lazyload();
+            lazyload();
             last += data.length;
             alreadyloading = false;
           }
