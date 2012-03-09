@@ -310,3 +310,7 @@ h1.linkable:hover {
 a {
   text-decoration: none;
 }
+
+li {
+  display: inline;
+}
