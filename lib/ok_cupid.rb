@@ -9,7 +9,7 @@ class OkCupid
   end
 
   def login
-    page = @agent.get "http://www.okcupid.com/"
+    page = @agent.get "https://www.okcupid.com/"
 
     if page.body.include? 'name="loginf"'
       # login
@@ -19,7 +19,7 @@ class OkCupid
       form.submit
     end
 
-    page = @agent.get "http://www.okcupid.com/"
+    page = @agent.get "https://www.okcupid.com/"
         
     !page.body.include? 'name="loginf"'
   end

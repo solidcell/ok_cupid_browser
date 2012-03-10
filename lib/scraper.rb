@@ -4,10 +4,10 @@ require 'bundler'
 Bundler.require
 
 # Classes
-require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
+require "#{ROOT_PATH}/lib/ok_cupid.rb"
 
 # Database Login
-DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
+DB = SQLite3::Database.new( "#{ROOT_PATH}/db/okcupid.db" )
 
 DB.execute("CREATE TABLE IF NOT EXISTS profiles (username varchar(128)  NOT NULL  PRIMARY KEY,`last_fetch_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,location Varchar(128) DEFAULT NULL,sex Varchar(16),age INTEGER,orientation Varchar(64),status Varchar(64))")
 DB.execute("CREATE TABLE IF NOT EXISTS pictures (username varchar(128)  NOT NULL,size varchar(32) NOT NULL,url varchar(256) NOT NULL)")
