@@ -21,6 +21,7 @@ $(document).ready(function() {
             tempo.append(data);
             last += data.length;
             alreadyloading = false;
+						$('.tipper').tipsy();
           }
         );
       }
