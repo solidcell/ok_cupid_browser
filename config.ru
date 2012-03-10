@@ -14,5 +14,7 @@ else
   $stderr.reopen(log)
 end
 
-require './okcupid_browser'
+ROOT_PATH = File.expand_path(File.dirname(__FILE__))
+
+require "#{ROOT_PATH}/web/okcupid_browser"
 run OKCBrowser

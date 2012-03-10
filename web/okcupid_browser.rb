@@ -21,7 +21,7 @@ class OKCBrowser < Sinatra::Base
          LIMIT #{count.to_i}
          OFFSET #{offset.to_i}
         "
-    db = SQLite3::Database.new "db/okcupid.db"
+    db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     db.execute(q)
   end
 end
