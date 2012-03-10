@@ -16,7 +16,7 @@ class OKCBrowser < Sinatra::Base
 
   private
 
-  def get_users(count=42, offset=0,location="All")
+  def get_users(count=42, offset=0, location="All")
     q = if location.nil? || location.empty? || location == "All"
       "SELECT username, url
          FROM pictures
@@ -36,6 +36,7 @@ class OKCBrowser < Sinatra::Base
          OFFSET #{offset.to_i}
         "
     end
+
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     db.execute(q)
   end
