@@ -73,6 +73,7 @@ def update_profile_details
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 100
     p = @ok.profile_for username
+    p[:location] = p[:location].gsub("'","''") if p[:location]
     begin
       qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location)
             VALUES ('#{username}',
