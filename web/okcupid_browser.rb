@@ -14,7 +14,7 @@ class OKCBrowser < Sinatra::Base
     
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     @locations = db.execute("SELECT DISTINCT location FROM profiles ORDER BY location ASC")
-    @locations = @locations.flatten(1).reject {|x| x.empty? }
+    @locations = @locations.flatten(1).reject {|x| x.nil? || x.empty? }
     @users = get_users(42,0,params[:loc])
     erb :index
   end

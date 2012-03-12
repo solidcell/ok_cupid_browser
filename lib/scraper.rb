@@ -48,7 +48,8 @@ def fetch_profile_pics
   "
   usernames = DB.execute(q).map(&:pop)
   puts "Fetching #{usernames.size} profiles' pictures... (estimated: #{usernames.size*3} pictures)"
-  usernames.each do |username|
+  usernames.each_with_index do |username,index|
+    puts "#{index}/#{usernames.size} completed" if 0 == index % 100
     profile = @ok.profile_pics_for username
     
     profile.each do |size,images|
