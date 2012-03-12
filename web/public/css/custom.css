@@ -41,3 +41,40 @@ img {
 select#locations {
 	font-size:14px;
 }
+
+.header_text {
+	float:left;
+	font-size:16px;
+	font-weight:bold;
+	color: #1874CD; 
+	text-shadow: 2px 1px 1px #f2f2f2;
+	padding-left:10px;
+}
+
+.password_field {
+	text-align:center;
+	font-size:36px; 
+	color: #1874CD; 
+	text-shadow: 2px 1px 1px #f2f2f2;
+	padding:10px;
+	margin:auto;
+}
+
+.password_field input[type="password"] {
+	border: 3px solid #AFC7C7;
+	-webkit-border-radius: 3px;  
+	-moz-border-radius: 3px;  
+	border-radius: 3px;
+	outline: none;
+	font-size:36px; 
+	color: #1874CD; 
+	width: 200px;
+	text-shadow: 2px 1px 1px #f2f2f2;	
+}
+
+.password_field input[type="submit"] {
+	outline: none;
+	text-decoration: 1px dashed #333;
+	color: #1874CD; 
+	text-shadow: 2px 1px 1px #f2f2f2;	
+}

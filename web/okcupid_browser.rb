@@ -1,17 +1,51 @@
+require 'sinatra/base'
+require 'sinatra/session'
+
 class OKCBrowser < Sinatra::Base
+  register Sinatra::Session
+  set :session_fail, '/pass'
+  set :session_secret, '&&IMG^^S00P3R5!'
+  SECRET_CODE = "findmeone"
+  
   set :erb, :format => :html5
 
-  get "/pics" do
-    content_type :json
-    get_users(42, params[:last],params[:loc]).to_json
-  end
-
   get "/" do
+    session!
+    
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     @locations = db.execute("SELECT DISTINCT location FROM profiles")
     @locations = @locations.flatten(1).reject {|x| x.empty? }
     @users = get_users(42,0,params[:loc])
     erb :index
+  end
+
+  get "/pass" do
+    if session?
+      redirect '/'
+    else    
+      erb :pass
+    end
+  end
+
+  post "/pass" do
+    puts params.inspect
+    if c = params[:code]
+      if SECRET_CODE == c
+        puts "Valid Code!!"
+        session_start!
+        session[:valid] = true
+      end
+      redirect '/'
+    else
+      redirect '/pass'
+    end
+  end
+
+  get "/pics" do
+    session!
+    
+    content_type :json
+    get_users(42, params[:last],params[:loc]).to_json
   end
 
   private

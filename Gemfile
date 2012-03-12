@@ -2,6 +2,7 @@ source :rubygems
 
 gem "sinatra", :require => "sinatra/base"
 gem "sinatra-contrib"
+gem "sinatra-session"
 gem 'nokogiri'
 gem 'mechanize', "2.3"
 gem 'json'
