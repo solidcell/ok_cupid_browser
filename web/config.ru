@@ -16,5 +16,5 @@ end
 
 ROOT_PATH = File.expand_path(File.dirname(__FILE__))
 
-require "#{ROOT_PATH}/web/okcupid_browser"
+require "#{ROOT_PATH}/okcupid_browser"
 run OKCBrowser
