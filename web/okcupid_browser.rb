@@ -1,6 +1,9 @@
 require 'sinatra/base'
 require 'sinatra/session'
 
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+
 class OKCBrowser < Sinatra::Base
   set :environment, :development
   register Sinatra::Session
@@ -9,14 +12,20 @@ class OKCBrowser < Sinatra::Base
   set :session_secret, 'S00P3R5faaaaab'
   SECRET_CODE = "findmeone"
   
-  set :erb, :format => :html5
+  set :erb, :format => :html5, :encoding => 'utf-8'
 
   get "/" do
     session!
     
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
-    @locations = db.execute("SELECT DISTINCT location FROM profiles ORDER BY location ASC")
-    @locations = @locations.flatten(1).reject {|x| x.nil? || x.empty? }
+    q = "SELECT DISTINCT location FROM profiles ORDER BY location ASC"
+    @locations = []
+    locs = db.execute(q).each do |l|
+      next if l.nil?
+      e = l.first.force_encoding('UTF-8')
+      @locations << e unless e.empty?
+    end
+
     @users = get_users(42,0,params[:loc])
     erb :index
   end
