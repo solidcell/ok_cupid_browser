@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'rack', '1.4.0', :git =>  "git://github.com/rack/rack.git" 
+gem 'rack', '1.4.1'
 gem "sinatra", :require => "sinatra/base"
 gem "sinatra-contrib"
 gem "sinatra-session"
