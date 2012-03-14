@@ -2,7 +2,9 @@ require 'sinatra/base'
 require 'sinatra/session'
 
 class OKCBrowser < Sinatra::Base
+  set :environment, :development
   register Sinatra::Session
+
   set :session_fail, '/pass'
   set :session_secret, '&&IMG^^S00P3R5!'
   SECRET_CODE = "findmeone"
