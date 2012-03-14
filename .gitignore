@@ -3,5 +3,5 @@
 vendor/
 tmp/
 *.swp
-log/*
+*/log/*
 .DS_Store
