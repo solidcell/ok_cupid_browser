@@ -4,7 +4,7 @@ require 'sinatra/session'
 class OKCBrowser < Sinatra::Base
   register Sinatra::Session
   set :session_fail, '/pass'
-  set :session_secret, '&&IMG^^S00P3R5!'
+  set :session_secret, 'S00P3R5faaaaab'
   SECRET_CODE = "findmeone"
   
   set :erb, :format => :html5
@@ -31,7 +31,6 @@ class OKCBrowser < Sinatra::Base
     puts params.inspect
     if c = params[:code]
       if SECRET_CODE == c
-        puts "Valid Code!!"
         session_start!
         session[:valid] = true
       end
