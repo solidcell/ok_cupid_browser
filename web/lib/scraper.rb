@@ -9,11 +9,26 @@ require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
 # Database Login
 DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
 
-
-DB.execute("CREATE TABLE IF NOT EXISTS profiles (username varchar(128)  NOT NULL  PRIMARY KEY,`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,location Varchar(128) DEFAULT NULL,sex Varchar(16),age INTEGER,orientation Varchar(64),status Varchar(64))")
-DB.execute("CREATE TABLE IF NOT EXISTS pictures (username varchar(128)  NOT NULL,size varchar(32) NOT NULL,url varchar(256) NOT NULL)")
-DB.execute("CREATE TABLE IF NOT EXISTS raw_profiles (`username` varchar(128) NOT NULL, `page` TEXT NOT NULL, `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-DB.execute("PRAGMA encoding = 'UTF-8'")
+db_queries = [
+  "CREATE TABLE IF NOT EXISTS profiles (
+    username varchar(128) NOT NULL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    location Varchar(128) DEFAULT NULL,
+    sex Varchar(16),
+    age INTEGER,
+    orientation Varchar(64),
+    body_type Varchar(64),
+    status Varchar(64) )",
+  "CREATE TABLE IF NOT EXISTS pictures (
+    username varchar(128) NOT NULL,
+    size varchar(32) NOT NULL,
+    url varchar(256) NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS raw_profiles (
+    username varchar(128) NOT NULL,
+    page TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+  "PRAGMA encoding = 'UTF-8'"
+].each { |query| DB.execute query }
 
 @ok = OkCupid.new
 
