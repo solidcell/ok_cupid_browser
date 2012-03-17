@@ -9,7 +9,7 @@ require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
 # Database Login
 DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
 
-DB.execute("CREATE TABLE IF NOT EXISTS profiles (username varchar(128)  NOT NULL  PRIMARY KEY,`last_fetch_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,location Varchar(128) DEFAULT NULL,sex Varchar(16),age INTEGER,orientation Varchar(64),status Varchar(64))")
+DB.execute("CREATE TABLE IF NOT EXISTS profiles (username varchar(128)  NOT NULL  PRIMARY KEY,`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,location Varchar(128) DEFAULT NULL,sex Varchar(16),age INTEGER,orientation Varchar(64),status Varchar(64))")
 DB.execute("CREATE TABLE IF NOT EXISTS pictures (username varchar(128)  NOT NULL,size varchar(32) NOT NULL,url varchar(256) NOT NULL)")
 DB.execute("CREATE TABLE IF NOT EXISTS raw_profiles (`username` varchar(128) NOT NULL, `page` TEXT NOT NULL, `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
 DB.execute("PRAGMA encoding = 'UTF-8'")
@@ -92,20 +92,18 @@ end
 # And extract the data desired, loading it back into the profiles table
 def process_raw_profiles rate = 100
   count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
+  puts "Updating #{count} profiles"
+  
   pages = count/rate
   (count/rate+1).times do |iteration|
-    puts "Iteration #{iteration}"
     q = "SELECT username,page FROM `raw_profiles` LIMIT #{rate} OFFSET #{rate*iteration}"
     raw_profiles = DB.execute(q)
-    puts "Updating #{raw_profiles.size} profiles"
     raw_profiles.each_with_index do |row,index|
       puts "#{index}/#{raw_profiles.size} completed" if 0 == index % 100
-      p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
-      p[:location] = p[:location].gsub("'","''") if p[:location]
+      next unless p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
       begin
-        qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location)
-              VALUES (?,?,?,?,?,?)"
-        DB.execute(qr,row.first,p[:sex],p[:age],p[:orientation],p[:status],p[:location])
+        qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location,body_type) VALUES (?,?,?,?,?,?,?)"
+        DB.execute(qr,row.first,p[:sex],p[:age],p[:orientation],p[:status],p[:location],p[:body_type])
       rescue Exception => e
         puts "Failed to #{qr}; #{e}"
       end

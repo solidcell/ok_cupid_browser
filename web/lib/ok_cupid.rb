@@ -53,21 +53,28 @@ class OkCupid
   end
   
   def profile_for username = nil, parsed_profile = nil
-    profile = if parsed_profile
-      parsed_profile
-    else
-      profile_page(username)
-    end
+    profile = parsed_profile || profile_page(username)
     
+    # Watch out for profiles that have been deleted!
+    return false if profile.inner_html.include?("have a user by that name!")
+    
+    # Age, Sex, Orientation
     aso = profile.search("//p[@class='aso']").inner_text.split(/\s\/\s/)
-    location= profile.search("//p[@class='location']").inner_text
+
+    # Location
+    location = profile.search("//p[@class='location']").inner_text
+
+    # Body Type
+    btype_elem = profile.search("//span[contains(text(),'Body Type')]").first
+    body_type = btype_elem.next_element.inner_text
     
     {
       :age => aso[0],
       :sex => aso[1],
       :orientation => aso[2],
       :status => aso[3],
-      :location => location
+      :location => location,
+      :body_type => body_type
     }
   end
     

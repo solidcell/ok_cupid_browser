@@ -103,12 +103,12 @@ class OKCBrowser < Sinatra::Base
 
     # Build our final Query, respecting any offsets
     q_final = "
-      SELECT pictures.username, pictures.url, profiles.last_fetch_date, profiles.location
+      SELECT pictures.username, pictures.url, profiles.created_at, profiles.location
       FROM pictures
       JOIN profiles on profiles.username = pictures.username
       WHERE size = 'small'
       #{filter_string}
-      ORDER BY profiles.last_fetch_date DESC
+      ORDER BY profiles.created_at DESC
       LIMIT #{count.to_i}
       OFFSET #{offset.to_i}
     "
