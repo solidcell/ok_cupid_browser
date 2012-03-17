@@ -98,7 +98,7 @@ class OKCBrowser < Sinatra::Base
     filter_string = ""
 
     ALLOWED_FILTERS.each do |filter_name|
-      if params.has_key?(filter_name)
+      if params.has_key?(filter_name) && "All" != params[filter_name]
         filter_string += " AND #{filter_name} LIKE ?"
         prepared_filters << params[filter_name]
       end
