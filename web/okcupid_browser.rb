@@ -58,27 +58,28 @@ class OKCBrowser < Sinatra::Base
 
   # Ask for Password
   get "/pass" do
-    if session?
-      redirect '/'
-    else
-      erb :pass
-    end
+    redirect '/' if session?
+    
+    erb :pass
   end
 
   # Check Password
   post "/pass" do
-    puts params.inspect
-    if c = params[:code]
-      if SECRET_CODE == c
-        session_start!
-        session[:valid] = true
-      end
+    if params[:code] && SECRET_CODE == params[:code]
+      session_start! 
+      session[:valid] = true
       redirect '/'
     else
       redirect '/pass'
     end
   end
 
+  get '/logout' do
+    session_end!(destroy=true)
+    
+    redirect '/'
+  end
+  
   private
 
 
@@ -133,9 +134,7 @@ class OKCBrowser < Sinatra::Base
 
   # a handy debug method that only prints in non production environments
   def puts msg
-    if settings.environment != :production
-      super(msg)
-    end
+    super(msg) if settings.environment != :production
   end
 
 end
