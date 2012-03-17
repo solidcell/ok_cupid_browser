@@ -6,7 +6,7 @@ Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
 class OKCBrowser < Sinatra::Base
-  
+
   # Default to Development Environment
   # Include the Sinatra/Reloader so we don't
   # have to restart the web server for every code change
@@ -31,9 +31,13 @@ class OKCBrowser < Sinatra::Base
     session!
 
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
-    q = "SELECT DISTINCT location FROM profiles WHERE location LIKE '%CALIFORNIA%' ORDER BY location ASC"
+    q = "SELECT DISTINCT location
+         FROM profiles
+         WHERE location
+         LIKE '%CALIFORNIA%'
+         ORDER BY location ASC"
     @locations = []
-    locs = db.execute(q).each do |l|
+    db.execute(q).each do |l|
       next if l.nil?
       e = l.first.force_encoding('UTF-8')
       @locations << e unless e.empty?
@@ -42,7 +46,7 @@ class OKCBrowser < Sinatra::Base
     @users = get_users(42,0)
     erb :index
   end
-  
+
   # Browse Pictures
   get "/pics" do
     session!
@@ -74,12 +78,12 @@ class OKCBrowser < Sinatra::Base
       redirect '/pass'
     end
   end
-  
+
   private
-  
-  
+
+
   ALLOWED_FILTERS = %w(location sex age body_type status)
-  
+
   # This method uses the global params object
   # in conjunction with the ALLOWED_FILTERS constant
   # to identify the filters a user might want to use
@@ -90,14 +94,14 @@ class OKCBrowser < Sinatra::Base
     # (prepared statements prevent sql injection)
     prepared_filters = []
     filter_string = ""
-    
+
     ALLOWED_FILTERS.each do |filter_name|
       if params.has_key?(filter_name)
         filter_string += " AND #{filter_name} LIKE ?"
         prepared_filters << params[filter_name]
       end
     end
-    
+
     # If no user filters provided we will defalt to California
     filter_string = "AND location LIKE '%CALIFORNIA%'" if filter_string.empty?
 
@@ -114,10 +118,10 @@ class OKCBrowser < Sinatra::Base
     "
 
     puts q_final
-    
+
     # Connect to the database
     db = SQLite3::Database.new("#{ROOT_PATH}/db/okcupid.db")
-    
+
     # Execute the query and return the result
     if prepared_filters.any?
       puts "User Filters are being used. Values for SQL -> #{prepared_filters.inspect}"
@@ -133,5 +137,5 @@ class OKCBrowser < Sinatra::Base
       super(msg)
     end
   end
-  
+
 end
