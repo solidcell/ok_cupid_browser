@@ -10,18 +10,18 @@ class OKCBrowser < Sinatra::Base
   else
     set :environment, :development
   end
-  
+
   register Sinatra::Session
 
   set :session_fail, '/pass'
   set :session_secret, 'S00P3R5faaaaab'
   SECRET_CODE = "findmeone"
-  
+
   set :erb, :format => :html5, :encoding => 'utf-8'
 
   get "/" do
     session!
-    
+
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     q = "SELECT DISTINCT location FROM profiles WHERE location LIKE '%CALIFORNIA%' ORDER BY location ASC"
     @locations = []
@@ -38,7 +38,7 @@ class OKCBrowser < Sinatra::Base
   get "/pass" do
     if session?
       redirect '/'
-    else    
+    else
       erb :pass
     end
   end
@@ -58,7 +58,7 @@ class OKCBrowser < Sinatra::Base
 
   get "/pics" do
     session!
-    
+
     content_type :json
     get_users(42, params[:last],params[:loc]).to_json
   end
@@ -92,10 +92,10 @@ class OKCBrowser < Sinatra::Base
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     db.execute(q)
   end
-  
-  
+
+
   def puts msg
-    if :environemt != :production
+    if :environment != :production
       super(msg)
     end
   end
