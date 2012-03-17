@@ -31,8 +31,7 @@ db_queries = [
 ].each { |query| DB.execute query }
 
 @ok = OkCupid.new
-
-raise "Unable to continue, login failed" unless @ok.login
+@ok.login or raise "Unable to continue, login failed"
 
 MAX_PROFILES = 2000
 STEP = 500
