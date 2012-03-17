@@ -30,18 +30,8 @@ class OKCBrowser < Sinatra::Base
   get "/" do
     session!
 
-    db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
-    q = "SELECT DISTINCT location
-         FROM profiles
-         WHERE location
-         LIKE '%CALIFORNIA%'
-         ORDER BY location ASC"
-    @locations = []
-    db.execute(q).each do |l|
-      next if l.nil?
-      e = l.first.force_encoding('UTF-8')
-      @locations << e unless e.empty?
-    end
+    @locations  = get_values_from_column :location
+    @body_types = get_values_from_column :body_type
 
     @users = get_users(42,0)
     erb :index
@@ -81,6 +71,27 @@ class OKCBrowser < Sinatra::Base
 
   private
 
+  def get_values_from_column column
+    conditions = case column
+                   when :location then "AND location LIKE '%CALIFORNIA%'"
+                 end
+
+    db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
+
+    q = "SELECT DISTINCT #{column}
+         FROM profiles
+         WHERE #{column} NOT NULL
+           #{conditions}
+         ORDER BY #{column} ASC"
+    values = []
+    db.execute(q).each do |l|
+      next if l.nil?
+      e = l.first.force_encoding('UTF-8')
+      values << e unless e.empty?
+    end
+    puts values
+    values
+  end
 
   ALLOWED_FILTERS = %w(location sex age body_type status)
 

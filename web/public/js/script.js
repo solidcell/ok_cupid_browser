@@ -7,20 +7,31 @@ $.urlParam = function(name) {
 $(document).ready(function() {
 	// load embedded JSON for locations
 	var locations = $.parseJSON($('#locations').html());
-	
-	var loc_sel = $('#select_location');
+	var body_types = $.parseJSON($('#body_types').html());
+
+	var location_select = $('#select_location');
+	var body_type_select = $('#select_body_type');
 	$.each(locations,function(ind,location) {
-		loc_sel.append("<option>"+location+"</option>");
+		location_select.append("<option>"+location+"</option>");
 	});
-	
+	$.each(body_types,function(ind,body_type) {
+		body_type_select.append("<option>"+body_type+"</option>");
+	});
+
 	if($.urlParam("location") != 0) {
-		loc_sel.val(decodeURIComponent($.urlParam("location")));
+		location_select.val(decodeURIComponent($.urlParam("location")));
 	}
-	
-	loc_sel.change(function(){
-		window.location = "/?location="+$('#select_location').val();
+	if($.urlParam("body_type") != 0) {
+		body_type_select.val(decodeURIComponent($.urlParam("body_type")));
+	}
+
+	location_select.change(function(){
+		window.location = "/?location="+$('#select_location').val()+"&body_type="+$('#select_body_type').val();
 	});
-	
+	body_type_select.change(function(){
+		window.location = "/?location="+$('#select_location').val()+"&body_type="+$('#select_body_type').val();
+	});
+
   // Load embedded JSON into list templates
   image_paths = $("#image_paths").html();
   image_paths = $.parseJSON(image_paths);
@@ -40,7 +51,8 @@ $(document).ready(function() {
           "/pics",
           {
 						last: last,
-						location: $('#select_location').val()
+						location: $('#select_location').val(),
+						body_type: $('#select_body_type').val()
 					},
           function(data) {
             tempo.append(data);

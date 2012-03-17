@@ -2,14 +2,22 @@
   <%= @locations.to_json %>
 </script>
 
+<script id="body_types" type="text/json">
+  <%= @body_types.to_json %>
+</script>
+
 <script id="image_paths" type="text/json">
   <%= @users.to_json %>
 </script>
+
 <div id="header" class="navbar navbar-fixed-top">
   <div class="header_text">
     FindByImage
   </div>
   <select id="select_location">
+    <option>All</option>
+  </select>
+  <select id="select_body_type">
     <option>All</option>
   </select>
 </div>
