@@ -10,8 +10,6 @@ if ENV['SIN_MODE'] == "production"
   log = File.new("log/sinatra.log", "a")
   $stdout.reopen(log)
   $stderr.reopen(log)
-else
-  require "sinatra/reloader"
 end
 
 ROOT_PATH = File.expand_path(File.dirname(__FILE__))

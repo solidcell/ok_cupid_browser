@@ -25,8 +25,8 @@ def fetch_usernames
   dups = 0
   @ok.match_usernames(MAX_PROFILES, STEP).each do |username|
     begin
-      q = "INSERT INTO `profiles` (username) VALUES ('#{username}')"
-      DB.execute q
+      q = "INSERT INTO `profiles` (username) VALUES (?)"
+      DB.execute(q,username)
       newbs += 1
     rescue Exception => e
       if e.to_s.include? "not unique"
@@ -57,8 +57,8 @@ def fetch_profile_pics
       images.each do |url|
         begin
           q = "INSERT INTO `pictures` (username,url,size) 
-                VALUES ('#{username}','#{url}','#{size}')"
-          DB.execute q
+                VALUES (?,?,?)"
+          DB.execute(q,username,url,size)
         rescue Exception => e
           puts "Failed to #{q}; #{e}"
         end
@@ -90,31 +90,25 @@ end
 # Process Raw Profiles out of the SQL Database
 # For each Page load it into Nokogiri::HTML
 # And extract the data desired, loading it back into the profiles table
-def process_raw_profiles
-  puts "Coming Soon"
-end
-
-# Live Method --> Calls out to the Interwebs
-def update_profile_details
-  q = "SELECT username FROM `profiles` WHERE location IS NULL OR location = ''"
-  usernames = DB.execute(q).map(&:pop)
-  puts "Updating #{usernames.size} profiles"
-  usernames.each_with_index do |username,index|
-    puts "#{index}/#{usernames.size} completed" if 0 == index % 100
-    p = @ok.profile_for username
-    p[:location] = p[:location].gsub("'","''") if p[:location]
-    begin
-      qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location)
-            VALUES ('#{username}',
-                    '#{p[:sex]}',
-                    '#{p[:age]}',
-                    '#{p[:orientation]}',
-                    '#{p[:status]}',
-                    '#{p[:location]}'
-            )"
-      DB.execute qr
-    rescue Exception => e
-      puts "Failed to #{qr}; #{e}"
+def process_raw_profiles rate = 100
+  count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
+  pages = count/rate
+  (count/rate+1).times do |iteration|
+    puts "Iteration #{iteration}"
+    q = "SELECT username,page FROM `raw_profiles` LIMIT #{rate} OFFSET #{rate*iteration}"
+    raw_profiles = DB.execute(q)
+    puts "Updating #{raw_profiles.size} profiles"
+    raw_profiles.each_with_index do |row,index|
+      puts "#{index}/#{raw_profiles.size} completed" if 0 == index % 100
+      p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
+      p[:location] = p[:location].gsub("'","''") if p[:location]
+      begin
+        qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location)
+              VALUES (?,?,?,?,?,?)"
+        DB.execute(qr,row.first,p[:sex],p[:age],p[:orientation],p[:status],p[:location])
+      rescue Exception => e
+        puts "Failed to #{qr}; #{e}"
+      end
     end
   end
 end
@@ -153,13 +147,14 @@ def download_pictures
   hydra.run
 end
 
-########################-------------------------#######################
 def do_it_all
   fetch_usernames
   fetch_profile_pics
   fetch_profile_details
   process_raw_profiles
 end
+
+########################-------------------------#######################
 
 targets = {
   "fetch_usernames" => "Fetch Match Usernames and store to SQL",

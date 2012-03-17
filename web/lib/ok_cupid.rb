@@ -52,8 +52,13 @@ class OkCupid
     get_url "http://m.okcupid.com/profile/#{username}"
   end
   
-  def profile_for username = nil
-    profile = profile_page(username)
+  def profile_for username = nil, parsed_profile = nil
+    profile = if parsed_profile
+      parsed_profile
+    else
+      profile_page(username)
+    end
+    
     aso = profile.search("//p[@class='aso']").inner_text.split(/\s\/\s/)
     location= profile.search("//p[@class='location']").inner_text
     

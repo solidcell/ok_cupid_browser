@@ -9,16 +9,16 @@ $(document).ready(function() {
 	var locations = $.parseJSON($('#locations').html());
 	
 	var loc_sel = $('#select_location');
-	$.each(locations,function(ind,loc) {
-		loc_sel.append("<option>"+loc+"</option>");
+	$.each(locations,function(ind,location) {
+		loc_sel.append("<option>"+location+"</option>");
 	});
 	
-	if($.urlParam("loc") != 0) {
-		loc_sel.val(decodeURIComponent($.urlParam("loc")));
+	if($.urlParam("location") != 0) {
+		loc_sel.val(decodeURIComponent($.urlParam("location")));
 	}
 	
 	loc_sel.change(function(){
-		window.location = "/?loc="+$('#select_location').val();
+		window.location = "/?location="+$('#select_location').val();
 	});
 	
   // Load embedded JSON into list templates
@@ -40,7 +40,7 @@ $(document).ready(function() {
           "/pics",
           {
 						last: last,
-						loc: $('#select_location').val()
+						location: $('#select_location').val()
 					},
           function(data) {
             tempo.append(data);
