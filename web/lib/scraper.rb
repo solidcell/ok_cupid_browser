@@ -64,7 +64,7 @@ def fetch_profile_pics
     WHERE username NOT IN (SELECT DISTINCT username FROM `pictures`)
   "
   usernames = DB.execute(q).map(&:pop)
-  puts "Fetching #{usernames.size} profiles' pictures... (estimated: #{usernames.size*3} pictures)"
+  puts "Fetching #{usernames.size} ~#{usernames.size*3} pictures"
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 100
     profile = @ok.profile_pics_for username
@@ -72,8 +72,7 @@ def fetch_profile_pics
     profile.each do |size,images|
       images.each do |url|
         begin
-          q = "INSERT INTO `pictures` (username,url,size)
-               VALUES (?,?,?)"
+          q = "INSERT INTO `pictures` (username,url,size) VALUES (?,?,?)"
           DB.execute(q,username,url,size)
         rescue Exception => e
           puts "Failed to #{q}; #{e}"
@@ -84,12 +83,11 @@ def fetch_profile_pics
 end
 
 def fetch_profile_details
-  q = "
-    SELECT username
-    FROM `profiles`
-    WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
-    LIMIT 100
-  "
+  q = "SELECT username
+      FROM `profiles`
+      WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
+      LIMIT 100"
+      
   usernames = DB.execute(q).map(&:pop)
   puts "Fetching #{usernames.size} profile pages"
 
