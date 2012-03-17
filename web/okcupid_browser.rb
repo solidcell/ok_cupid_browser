@@ -51,8 +51,8 @@ class OKCBrowser < Sinatra::Base
   # Browse Pictures
   get "/pics" do
     session!
-
     content_type :json
+    
     get_users(42, params[:last]).to_json
   end
 
@@ -118,7 +118,7 @@ class OKCBrowser < Sinatra::Base
       ORDER BY profiles.created_at DESC
       LIMIT #{count.to_i} OFFSET #{offset.to_i}"
 
-    puts q_final
+    puts q
 
     # Connect to the database
     db = SQLite3::Database.new("#{ROOT_PATH}/db/okcupid.db")
@@ -126,9 +126,9 @@ class OKCBrowser < Sinatra::Base
     # Execute the query and return the result
     if prepared_filters.any?
       puts "User Filters are being used. Values for SQL -> #{prepared_filters.inspect}"
-      db.execute(q_final,*prepared_filters)
+      db.execute(q,*prepared_filters)
     else
-      db.execute(q_final)
+      db.execute(q)
     end
   end
 
