@@ -9,6 +9,7 @@ require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
 # Database Login
 DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
 
+
 DB.execute("CREATE TABLE IF NOT EXISTS profiles (username varchar(128)  NOT NULL  PRIMARY KEY,`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,location Varchar(128) DEFAULT NULL,sex Varchar(16),age INTEGER,orientation Varchar(64),status Varchar(64))")
 DB.execute("CREATE TABLE IF NOT EXISTS pictures (username varchar(128)  NOT NULL,size varchar(32) NOT NULL,url varchar(256) NOT NULL)")
 DB.execute("CREATE TABLE IF NOT EXISTS raw_profiles (`username` varchar(128) NOT NULL, `page` TEXT NOT NULL, `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
@@ -36,7 +37,7 @@ def fetch_usernames
       end
     end
   end
-  
+
   puts "Added #{newbs} items and found #{dups} duplicates"
 end
 
@@ -44,20 +45,21 @@ def fetch_profile_pics
   # Find Users who we do not have any pictures for yet.
   # We can do a refresh some other time.
   q = "
-    SELECT username FROM `profiles` 
-    WHERE username NOT IN (SELECT DISTINCT username from `pictures`)
+    SELECT username
+    FROM `profiles`
+    WHERE username NOT IN (SELECT DISTINCT username FROM `pictures`)
   "
   usernames = DB.execute(q).map(&:pop)
   puts "Fetching #{usernames.size} profiles' pictures... (estimated: #{usernames.size*3} pictures)"
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 100
     profile = @ok.profile_pics_for username
-    
+
     profile.each do |size,images|
       images.each do |url|
         begin
-          q = "INSERT INTO `pictures` (username,url,size) 
-                VALUES (?,?,?)"
+          q = "INSERT INTO `pictures` (username,url,size)
+               VALUES (?,?,?)"
           DB.execute(q,username,url,size)
         rescue Exception => e
           puts "Failed to #{q}; #{e}"
@@ -69,13 +71,14 @@ end
 
 def fetch_profile_details
   q = "
-    SELECT username FROM `profiles` 
-    WHERE username NOT IN (SELECT DISTINCT username from `raw_profiles`)
+    SELECT username
+    FROM `profiles`
+    WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
     LIMIT 100
   "
   usernames = DB.execute(q).map(&:pop)
   puts "Fetching #{usernames.size} profile pages"
-  
+
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 100
     begin
@@ -91,6 +94,7 @@ end
 # For each Page load it into Nokogiri::HTML
 # And extract the data desired, loading it back into the profiles table
 def process_raw_profiles rate = 100
+
   count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
   puts "Updating #{count} profiles"
   
@@ -113,11 +117,11 @@ end
 
 def download_pictures
   hydra = Typhoeus::Hydra.new(:max_concurrency => 10) # keep from killing some servers
-  
+
   q = "SELECT username,size,url FROM `pictures` LIMIT 40"
   pictures = DB.execute(q)
   puts "#{pictures.size} to process"
-  
+
   pictures.each do |picture|
     username = picture[0]
     size = picture[1]
@@ -141,7 +145,7 @@ def download_pictures
 
     hydra.queue request
   end
-  
+
   hydra.run
 end
 
