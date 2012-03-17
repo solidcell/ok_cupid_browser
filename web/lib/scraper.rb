@@ -11,6 +11,7 @@ DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/o
 
 DB.execute("CREATE TABLE IF NOT EXISTS profiles (username varchar(128)  NOT NULL  PRIMARY KEY,`last_fetch_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,location Varchar(128) DEFAULT NULL,sex Varchar(16),age INTEGER,orientation Varchar(64),status Varchar(64))")
 DB.execute("CREATE TABLE IF NOT EXISTS pictures (username varchar(128)  NOT NULL,size varchar(32) NOT NULL,url varchar(256) NOT NULL)")
+DB.execute("CREATE TABLE IF NOT EXISTS raw_profiles (`username` varchar(128) NOT NULL, `page` TEXT NOT NULL, `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
 DB.execute("PRAGMA encoding = 'UTF-8'")
 
 @ok = OkCupid.new
@@ -39,7 +40,6 @@ def fetch_usernames
   puts "Added #{newbs} items and found #{dups} duplicates"
 end
 
-
 def fetch_profile_pics
   # Find Users who we do not have any pictures for yet.
   # We can do a refresh some other time.
@@ -67,6 +67,34 @@ def fetch_profile_pics
   end
 end
 
+def fetch_profile_details
+  q = "
+    SELECT username FROM `profiles` 
+    WHERE username NOT IN (SELECT DISTINCT username from `raw_profiles`)
+    LIMIT 100
+  "
+  usernames = DB.execute(q).map(&:pop)
+  puts "Fetching #{usernames.size} profile pages"
+  
+  usernames.each_with_index do |username,index|
+    puts "#{index}/#{usernames.size} completed" if 0 == index % 100
+    begin
+      qr = "INSERT INTO raw_profiles (username,page) VALUES (?,?)"
+      DB.execute(qr,username,@ok.profile_page(username).body)
+    rescue Exception => e
+      puts "Failed to #{qr}; #{e}"
+    end
+  end
+end
+
+# Process Raw Profiles out of the SQL Database
+# For each Page load it into Nokogiri::HTML
+# And extract the data desired, loading it back into the profiles table
+def process_raw_profiles
+  puts "Coming Soon"
+end
+
+# Live Method --> Calls out to the Interwebs
 def update_profile_details
   q = "SELECT username FROM `profiles` WHERE location IS NULL OR location = ''"
   usernames = DB.execute(q).map(&:pop)
@@ -90,7 +118,6 @@ def update_profile_details
     end
   end
 end
-
 
 def download_pictures
   hydra = Typhoeus::Hydra.new(:max_concurrency => 10) # keep from killing some servers
@@ -126,12 +153,27 @@ def download_pictures
   hydra.run
 end
 
+########################-------------------------#######################
+def do_it_all
+  fetch_usernames
+  fetch_profile_pics
+  fetch_profile_details
+  process_raw_profiles
+end
 
-case ARGV[0]
-  when "usernames" then fetch_usernames
-  when "pictures" then fetch_profile_pics
-  when "profile_data" then update_profile_details
-  when "update_db" then fetch_usernames; fetch_profile_pics; update_profile_details
-  when "download_pictures" then download_pictures
-  else puts "Usage: ruby scraper.rb [usernames|pictures|profile_data|update_db|download_pictures]"
+targets = {
+  "fetch_usernames" => "Fetch Match Usernames and store to SQL",
+  "fetch_profile_pics" => "Fetch profile pic URLS and store to SQL",
+  "fetch_profile_details" => "Fetch profile pages and store them to SQL",
+  "process_raw_profiles" => "Process the raw profile pages stored in SQL",
+  "do_it_all" => "Fetch all data and process it (Hits Internet)",
+  "download_pictures" => "For the stored profile pics in SQL, download the raw files"
+}
+
+if targets.keys.include? ARGV[0]
+  self.send ARGV[0]
+else
+  puts "Usage: ruby scraper.rb command"
+  puts "The support commenads are as follows:"
+  targets.each { |k,v| puts "#{k} [#{v}]" }
 end

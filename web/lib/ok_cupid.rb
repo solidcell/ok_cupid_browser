@@ -47,10 +47,13 @@ class OkCupid
     usernames.uniq
   end
   
-  def profile_for username = nil
+  def profile_page username
     return false unless username
-    
-    profile = get_url "http://m.okcupid.com/profile/#{username}"
+    get_url "http://m.okcupid.com/profile/#{username}"
+  end
+  
+  def profile_for username = nil
+    profile = profile_page(username)
     aso = profile.search("//p[@class='aso']").inner_text.split(/\s\/\s/)
     location= profile.search("//p[@class='location']").inner_text
     
