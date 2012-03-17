@@ -48,25 +48,26 @@ class OKCBrowser < Sinatra::Base
 
   # Ask for Password
   get "/pass" do
-    if session?
-      redirect '/'
-    else
-      erb :pass
-    end
+    redirect '/' if session?
+
+    erb :pass
   end
 
   # Check Password
   post "/pass" do
-    puts params.inspect
-    if c = params[:code]
-      if SECRET_CODE == c
-        session_start!
-        session[:valid] = true
-      end
+    if params[:code] && SECRET_CODE == params[:code]
+      session_start!
+      session[:valid] = true
       redirect '/'
     else
       redirect '/pass'
     end
+  end
+
+  get '/logout' do
+    session_end!(destroy=true)
+
+    redirect '/'
   end
 
   private
@@ -107,7 +108,7 @@ class OKCBrowser < Sinatra::Base
     filter_string = ""
 
     ALLOWED_FILTERS.each do |filter_name|
-      if params.has_key?(filter_name)
+      if params.has_key?(filter_name) && "All" != params[filter_name]
         filter_string += " AND #{filter_name} LIKE ?"
         prepared_filters << params[filter_name]
       end
@@ -117,16 +118,15 @@ class OKCBrowser < Sinatra::Base
     filter_string = "AND location LIKE '%CALIFORNIA%'" if filter_string.empty?
 
     # Build our final Query, respecting any offsets
-    q_final = "
-      SELECT pictures.username, pictures.url, profiles.created_at, profiles.location
+    q = "SELECT pictures.username,
+          pictures.url,
+          profiles.created_at,
+          profiles.location
       FROM pictures
-      JOIN profiles on profiles.username = pictures.username
-      WHERE size = 'small'
-      #{filter_string}
+      JOIN profiles ON profiles.username = pictures.username
+      WHERE size = 'small' #{filter_string}
       ORDER BY profiles.created_at DESC
-      LIMIT #{count.to_i}
-      OFFSET #{offset.to_i}
-    "
+      LIMIT #{count.to_i} OFFSET #{offset.to_i}"
 
     puts q_final
 
@@ -144,9 +144,7 @@ class OKCBrowser < Sinatra::Base
 
   # a handy debug method that only prints in non production environments
   def puts msg
-    if settings.environment != :production
-      super(msg)
-    end
+    super(msg) if settings.environment != :production
   end
 
 end
