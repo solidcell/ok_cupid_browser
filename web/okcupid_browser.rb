@@ -32,10 +32,11 @@ class OKCBrowser < Sinatra::Base
 
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     q = "SELECT DISTINCT location
-         FROM profiles
-         WHERE location
-         LIKE '%CALIFORNIA%'
-         ORDER BY location ASC"
+          FROM profiles
+          WHERE location
+          LIKE '%CALIFORNIA%'
+          ORDER BY location ASC"
+
     @locations = []
     db.execute(q).each do |l|
       next if l.nil?
@@ -107,16 +108,15 @@ class OKCBrowser < Sinatra::Base
     filter_string = "AND location LIKE '%CALIFORNIA%'" if filter_string.empty?
 
     # Build our final Query, respecting any offsets
-    q_final = "
-      SELECT pictures.username, pictures.url, profiles.created_at, profiles.location
+    q = "SELECT pictures.username, 
+          pictures.url,
+          profiles.created_at, 
+          profiles.location
       FROM pictures
-      JOIN profiles on profiles.username = pictures.username
-      WHERE size = 'small'
-      #{filter_string}
+      JOIN profiles ON profiles.username = pictures.username
+      WHERE size = 'small' #{filter_string}
       ORDER BY profiles.created_at DESC
-      LIMIT #{count.to_i}
-      OFFSET #{offset.to_i}
-    "
+      LIMIT #{count.to_i} OFFSET #{offset.to_i}"
 
     puts q_final
 
