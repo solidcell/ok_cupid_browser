@@ -5,7 +5,12 @@ Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
 class OKCBrowser < Sinatra::Base
-  set :environment, :development
+  if ENV['SIN_MODE'] == "production"
+    set :environment, :production
+  else
+    set :environment, :development
+  end
+  
   register Sinatra::Session
 
   set :session_fail, '/pass'
@@ -18,7 +23,7 @@ class OKCBrowser < Sinatra::Base
     session!
     
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
-    q = "SELECT DISTINCT location FROM profiles ORDER BY location ASC"
+    q = "SELECT DISTINCT location FROM profiles WHERE location LIKE '%CALIFORNIA%' ORDER BY location ASC"
     @locations = []
     locs = db.execute(q).each do |l|
       next if l.nil?
@@ -62,26 +67,36 @@ class OKCBrowser < Sinatra::Base
 
   def get_users(count=42, offset=0, location="All")
     q = if location.nil? || location.empty? || location == "All"
-      "SELECT username, url
+      "SELECT pictures.username, pictures.url, profiles.last_fetch_date, profiles.location
          FROM pictures
-         WHERE size = 'small'
-         ORDER BY username
+         JOIN profiles on profiles.username = pictures.username
+         WHERE size = 'small' AND profiles.location LIKE '%CALIFORNIA%'
+         ORDER BY profiles.last_fetch_date DESC
          LIMIT #{count.to_i}
          OFFSET #{offset.to_i}
         "
     else
       location = CGI::unescape(location).gsub("'","''")
-      "SELECT pictures.username, pictures.url
+      "SELECT pictures.username, pictures.url, profile.last_fetch_date, profiles.location
          FROM pictures
          JOIN profiles on profiles.username = pictures.username
-         WHERE size = 'small' AND location = '#{location}'
-         ORDER BY pictures.username
+         WHERE size = 'small' AND location = '#{location}' AND profiles.location LIKE '%CALIFORNIA%'
+         ORDER BY profiles.last_fetch_date DESC
          LIMIT #{count.to_i}
          OFFSET #{offset.to_i}
         "
     end
 
+    puts q
+
     db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
     db.execute(q)
+  end
+  
+  
+  def puts msg
+    if :environemt != :production
+      super(msg)
+    end
   end
 end
