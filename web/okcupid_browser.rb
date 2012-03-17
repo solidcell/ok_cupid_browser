@@ -95,7 +95,7 @@ class OKCBrowser < Sinatra::Base
 
 
   def puts msg
-    if :environment != :production
+    if settings.environment != :production
       super(msg)
     end
   end
