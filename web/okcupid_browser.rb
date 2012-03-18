@@ -2,7 +2,8 @@ require 'sinatra/base'
 require 'sinatra/session'
 require "sinatra/reloader"
 
-# Strict Encoding Defaults
+# Application Settings
+ALLOWED_FILTERS = %w(location sex age body_type status)
 Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
@@ -21,7 +22,6 @@ class OKCBrowser < Sinatra::Base
   register Sinatra::Session
   set :session_fail, '/pass'
   set :session_secret, 'S00P3R5faaaaab'
-  SECRET_CODE = 'findmeone'
 
   # Standard HTML Responses
   set :erb, :format => :html5, :encoding => 'utf-8'
@@ -30,19 +30,8 @@ class OKCBrowser < Sinatra::Base
   get "/" do
     session!
 
-    db = SQLite3::Database.new "#{ROOT_PATH}/db/okcupid.db"
-    q = "SELECT DISTINCT location
-          FROM profiles
-          WHERE location
-          LIKE '%CALIFORNIA%'
-          ORDER BY location ASC"
-
-    @locations = []
-    db.execute(q).each do |l|
-      next if l.nil?
-      e = l.first.force_encoding('UTF-8')
-      @locations << e unless e.empty?
-    end
+    @locations  = get_values_from_column :location
+    @body_types = get_values_from_column :body_type
 
     @users = get_users(42,0)
     erb :index
@@ -60,14 +49,14 @@ class OKCBrowser < Sinatra::Base
   # Ask for Password
   get "/pass" do
     redirect '/' if session?
-    
+
     erb :pass
   end
 
   # Check Password
   post "/pass" do
-    if params[:code] && SECRET_CODE == params[:code]
-      session_start! 
+    if params[:code] && 'findmeone' == params[:code]
+      session_start!
       session[:valid] = true
       redirect '/'
     else
@@ -77,13 +66,24 @@ class OKCBrowser < Sinatra::Base
 
   get '/logout' do
     session_end!(destroy=true)
-    
+
     redirect '/'
   end
-  
+
   private
 
-  ALLOWED_FILTERS = %w(location sex age body_type status)
+  def get_values_from_column column
+    conditions = case column
+                   when :location then "AND location LIKE '%CALIFORNIA%'"
+                 end
+
+    SQLite3::Database.new("#{ROOT_PATH}/db/okcupid.db").execute(
+      "SELECT DISTINCT #{column}
+        FROM profiles
+        WHERE #{column} NOT NULL AND #{column} != '' #{conditions}
+        ORDER BY #{column} ASC"
+    ).map { |result_array| result_array.first.force_encoding("UTF-8") }
+  end
 
   # This method uses the global params object
   # in conjunction with the ALLOWED_FILTERS constant
@@ -107,9 +107,9 @@ class OKCBrowser < Sinatra::Base
     filter_string = "AND location LIKE '%CALIFORNIA%'" if filter_string.empty?
 
     # Build our final Query, respecting any offsets
-    q = "SELECT pictures.username, 
+    q = "SELECT pictures.username,
           pictures.url,
-          profiles.created_at, 
+          profiles.created_at,
           profiles.location
       FROM pictures
       JOIN profiles ON profiles.username = pictures.username
@@ -132,8 +132,6 @@ class OKCBrowser < Sinatra::Base
   end
 
   # a handy debug method that only prints in non production environments
-  def puts msg
-    super(msg) if settings.environment != :production
-  end
+  def puts msg; settings.environment != :production && super(msg); end
 
 end
