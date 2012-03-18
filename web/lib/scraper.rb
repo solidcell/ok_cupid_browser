@@ -107,15 +107,14 @@ def process_raw_profiles rate = 100
     DB.execute(
       "SELECT username,page FROM `raw_profiles` LIMIT #{rate} OFFSET #{rate*iteration}"
     ).each_with_index do |row,index|
-      puts "~#{index}/#{rate} completed" if 0 == index % 25
+      puts "~#{rate*iteration}/#{count} completed" if 0 == index % rate
       
       next unless p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
       
-      columns = %w(username,sex,age,orientation,status,location,body_type)
-      
+      columns = %w(username sex age orientation status location body_type)
       db_execute(
         "REPLACE INTO profiles (#{columns*','}) VALUES (?,?,?,?,?,?,?)", 
-        columns.map { |param| prepared_params << p[param.to_sym] }
+        columns.map { |field_name| p[field_name.to_sym] }
       )
     end
   end
