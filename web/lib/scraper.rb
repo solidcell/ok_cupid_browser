@@ -28,7 +28,10 @@ db_queries = [
     page TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
   "PRAGMA encoding = 'UTF-8'"
-].each { |query| DB.execute query }
+]
+
+# Uncomment to run queries
+# db_queries.each { |query| DB.execute query }
 
 @ok = OkCupid.new
 @ok.login or raise "Unable to continue, login failed"
@@ -82,17 +85,18 @@ def fetch_profile_pics
   end
 end
 
-def fetch_profile_details
-  q = "SELECT username
-      FROM `profiles`
-      WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
-      LIMIT 100"
-      
-  usernames = DB.execute(q).map(&:pop)
+def fetch_profile_details limit = 50
+  usernames = DB.execute(
+    "SELECT username
+    FROM `profiles`
+    WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
+    LIMIT #{limit}"
+  ).map(&:pop)
+  
   puts "Fetching #{usernames.size} profile pages"
 
   usernames.each_with_index do |username,index|
-    puts "#{index}/#{usernames.size} completed" if 0 == index % 100
+    puts "#{index}/#{usernames.size} completed" if 0 == index % limit
     begin
       qr = "INSERT INTO raw_profiles (username,page) VALUES (?,?)"
       DB.execute(qr,username,@ok.profile_page(username).body)
@@ -106,7 +110,6 @@ end
 # For each Page load it into Nokogiri::HTML
 # And extract the data desired, loading it back into the profiles table
 def process_raw_profiles rate = 100
-
   count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
   puts "Updating #{count} profiles"
   
