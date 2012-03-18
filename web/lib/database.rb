@@ -2,6 +2,10 @@ require 'sqlite3'
 
 class Database
   attr_accessor :db_connection
+
+  def puts msg
+    super(msg) if ENV['SIN_VERBOSE'] && ENV['SIN_VERBOSE'].to_i > 1
+  end
   
   def initialize(existing_connection = nil)
     self.db_connection = existing_connection ||
