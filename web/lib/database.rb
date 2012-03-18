@@ -8,7 +8,7 @@ class Database
       SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
   end
   
-  def db_execute query, prepared_params = []
+  def execute query, prepared_params = []
     puts "Query: #{query}"
     puts "Prepared Params: #{prepared_params}"
     
@@ -49,7 +49,7 @@ class Database
         username varchar(128) NOT NULL,
         profiles text NOT NULL)",
       "PRAGMA encoding = 'UTF-8'"
-    ].each { |query| db_execute query }
+    ].each { |query| execute query }
   end  
 end
 # To run "migrations" simply call

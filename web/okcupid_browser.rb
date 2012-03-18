@@ -79,7 +79,7 @@ class OKCBrowser < Sinatra::Base
                    when :location then "AND location LIKE '%CALIFORNIA%'"
                  end
 
-    Database.new.db_execute(
+    Database.new.execute(
       "SELECT DISTINCT #{column}
         FROM profiles
         WHERE #{column} NOT NULL AND #{column} != '' #{conditions}
@@ -112,7 +112,7 @@ class OKCBrowser < Sinatra::Base
     prepared_filters << offset.to_i
     
     # Connect to the database
-    Database.new.db_execute(
+    Database.new.execute(
       "SELECT pictures.username, 
         pictures.url, 
         profiles.created_at, 

@@ -5,9 +5,8 @@ Bundler.require
 
 require "#{File.expand_path(File.dirname(__FILE__))}/../includes/initializer.rb"
 
-unless (@ok = OkCupid.new) && @ok.login
-  raise "Unable to continue, login failed"
-end
+@ok = OkCupid.new
+raise "Unable to continue, login failed" unless @ok.login
 
 DB = Database.new
 
@@ -15,14 +14,14 @@ MAX_PROFILES = 2000
 STEP = 500
 def fetch_usernames
   @ok.match_usernames(MAX_PROFILES, STEP).each do |username|
-    DB.db_execute("INSERT INTO `profiles` (username) VALUES (?)",[username])
+    DB.execute("INSERT INTO `profiles` (username) VALUES (?)",[username])
   end
 end
 
 def fetch_profile_pics
   # Find Users who we do not have any pictures for yet.
   # We can do a refresh some other time.
-  usernames = DB.db_execute(
+  usernames = DB.execute(
     "SELECT username
      FROM profiles
      WHERE username NOT IN (SELECT DISTINCT username FROM pictures)"
@@ -34,7 +33,7 @@ def fetch_profile_pics
 
     @ok.profile_pics_for(username).each do |size,images|
       images.each do |url|
-        DB.db_execute(
+        DB.execute(
           "INSERT INTO pictures (username,url,size)
            VALUES (?,?,?)",
           [
@@ -51,11 +50,11 @@ end
 def fetch_hidden_profiles
   puts "Fetching hidden profiles for #{@ok.username}"
 
-  DB.db_execute(
+  DB.execute(
     "DELETE FROM hidden_profiles WHERE username = ?",
     [@ok.username]
   )
-  DB.db_execute(
+  DB.execute(
     "INSERT INTO hidden_profiles (username,profiles) VALUES (?,?)",
     [
       @ok.username,
@@ -77,7 +76,7 @@ def fetch_profile_details limit = 100
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 25
 
-    DB.db_execute(
+    DB.execute(
       "INSERT INTO raw_profiles (username,page) VALUES (?,?)",
       [
         username,
@@ -103,7 +102,7 @@ def process_raw_profiles rate = 100
       next unless p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
 
       columns = %w(username sex age orientation status location body_type)
-      DB.db_execute(
+      DB.execute(
         "REPLACE INTO profiles (#{columns*','}) VALUES (?,?,?,?,?,?,?)",
         columns.map { |field_name| p[field_name.to_sym] }
       )
