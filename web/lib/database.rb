@@ -50,7 +50,7 @@ class Database
         profiles text NOT NULL)",
       "PRAGMA encoding = 'UTF-8'"
     ].each { |query| execute query }
-  end  
+  end
 end
 # To run "migrations" simply call
 #Database.new.migrate!
