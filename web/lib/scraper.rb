@@ -7,6 +7,20 @@ require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
 # Database Login
 DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
 
+def db_execute query, prepared_params = []
+  begin
+    if prepared_params && prepared_params.any?
+      DB.execute(query,*prepared_params)
+    else
+      DB.execute(query)
+    end
+  rescue Exception => e
+    puts "Failed to execute against db #{query}, #{prepared_params.inspect} -> #{e}"
+  end
+
+  false
+end
+
 db_queries = [
   "CREATE TABLE IF NOT EXISTS profiles (
     username varchar(128) NOT NULL PRIMARY KEY,
@@ -25,11 +39,13 @@ db_queries = [
     username varchar(128) NOT NULL,
     page TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+  "CREATE TABLE IF NOT EXISTS hidden_profiles (
+    username varchar(128) NOT NULL,
+    profiles text NOT NULL)",
   "PRAGMA encoding = 'UTF-8'"
 ]
-
 # Uncomment to run queries
-# db_queries.each { |query| db_execute query }
+db_queries.each { |query| db_execute query }
 
 @ok = OkCupid.new
 
@@ -50,10 +66,10 @@ def fetch_profile_pics
   # We can do a refresh some other time.
   usernames = db_execute(
     "SELECT username
-    FROM `profiles`
-    WHERE username NOT IN (SELECT DISTINCT username FROM `pictures`)"
+     FROM profiles
+     WHERE username NOT IN (SELECT DISTINCT username FROM pictures)"
   ).map(&:pop)
-  
+
   puts "Fetching #{usernames.size} ~#{usernames.size*3} pictures"
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 25
@@ -61,7 +77,8 @@ def fetch_profile_pics
     @ok.profile_pics_for(username).each do |size,images|
       images.each do |url|
         db_execute(
-          "INSERT INTO `pictures` (username,url,size) VALUES (?,?,?)",
+          "INSERT INTO pictures (username,url,size)
+           VALUES (?,?,?)",
           [
             username,
             url,
@@ -73,19 +90,35 @@ def fetch_profile_pics
   end
 end
 
+def fetch_hidden_profiles
+  puts "Fetching hidden profiles for #{@ok.username}"
+
+  db_execute("DELETE FROM hidden_profiles
+              WHERE username = ?",
+             [@ok.username])
+  db_execute(
+    "INSERT INTO hidden_profiles (username,profiles)
+     VALUES (?,?)",
+    [
+      @ok.username,
+      @ok.hidden_profiles.join(",")
+    ]
+  )
+end
+
 def fetch_profile_details limit = 100
   usernames = DB.execute(
     "SELECT username
-    FROM `profiles`
-    WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
-    LIMIT #{limit}"
+     FROM `profiles`
+     WHERE username NOT IN (SELECT DISTINCT username FROM `raw_profiles`)
+     LIMIT #{limit}"
   ).map(&:pop)
-  
+
   puts "Fetching #{usernames.size} profile pages"
 
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 25
-    
+
     db_execute(
       "INSERT INTO raw_profiles (username,page) VALUES (?,?)",
       [
@@ -102,18 +135,18 @@ end
 def process_raw_profiles rate = 100
   count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
   puts "Updating #{count} profiles"
-  
+
   (count / rate + 1).times do |iteration|
     DB.execute(
       "SELECT username,page FROM `raw_profiles` LIMIT #{rate} OFFSET #{rate*iteration}"
     ).each_with_index do |row,index|
       puts "~#{rate*iteration}/#{count} completed" if 0 == index % rate
-      
+
       next unless p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
-      
+
       columns = %w(username sex age orientation status location body_type)
       db_execute(
-        "REPLACE INTO profiles (#{columns*','}) VALUES (?,?,?,?,?,?,?)", 
+        "REPLACE INTO profiles (#{columns*','}) VALUES (?,?,?,?,?,?,?)",
         columns.map { |field_name| p[field_name.to_sym] }
       )
     end
@@ -161,24 +194,11 @@ def do_it_all
   process_raw_profiles
 end
 
-def db_execute query, prepared_params = []
-  begin
-    if prepared_params && prepared_params.any?
-      DB.execute(query,*prepared_params)
-    else
-      DB.execute(query)
-    end
-  rescue Exception => e
-    puts "Failed to execute against db #{query}, #{prepared_params.inspect} -> #{e}"
-  end
-  
-  false
-end
-
 ########################-------------------------#######################
 
 targets = {
   "fetch_usernames" => "Fetch Match Usernames and store to SQL",
+  "fetch_hidden_profiles" => "Fetch Hidden Profiles and store to SQL",
   "fetch_profile_pics" => "Fetch profile pic URLS and store to SQL",
   "fetch_profile_details" => "Fetch profile pages and store them to SQL",
   "process_raw_profiles" => "Process the raw profile pages stored in SQL",
