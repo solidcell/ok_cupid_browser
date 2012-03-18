@@ -2,8 +2,6 @@ require "rubygems"
 require 'bundler'
 
 Bundler.require
-
-# Classes
 require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
 
 # Database Login
@@ -31,61 +29,51 @@ db_queries = [
 ]
 
 # Uncomment to run queries
-# db_queries.each { |query| DB.execute query }
+# db_queries.each { |query| db_execute query }
 
 @ok = OkCupid.new
-@ok.login or raise "Unable to continue, login failed"
+
+unless @ok.login
+  raise "Unable to continue, login failed"
+end
 
 MAX_PROFILES = 2000
 STEP = 500
 def fetch_usernames
-  newbs = 0
-  dups = 0
   @ok.match_usernames(MAX_PROFILES, STEP).each do |username|
-    begin
-      q = "INSERT INTO `profiles` (username) VALUES (?)"
-      DB.execute(q,username)
-      newbs += 1
-    rescue Exception => e
-      if e.to_s.include? "not unique"
-        dups += 1
-      else
-        puts "#{q} FAILED: #{e}"
-      end
-    end
+    db_execute("INSERT INTO `profiles` (username) VALUES (?)",[username])
   end
-
-  puts "Added #{newbs} items and found #{dups} duplicates"
 end
 
 def fetch_profile_pics
   # Find Users who we do not have any pictures for yet.
   # We can do a refresh some other time.
-  q = "
-    SELECT username
+  usernames = db_execute(
+    "SELECT username
     FROM `profiles`
-    WHERE username NOT IN (SELECT DISTINCT username FROM `pictures`)
-  "
-  usernames = DB.execute(q).map(&:pop)
+    WHERE username NOT IN (SELECT DISTINCT username FROM `pictures`)"
+  ).map(&:pop)
+  
   puts "Fetching #{usernames.size} ~#{usernames.size*3} pictures"
   usernames.each_with_index do |username,index|
-    puts "#{index}/#{usernames.size} completed" if 0 == index % 100
-    profile = @ok.profile_pics_for username
+    puts "#{index}/#{usernames.size} completed" if 0 == index % 25
 
-    profile.each do |size,images|
+    @ok.profile_pics_for(username).each do |size,images|
       images.each do |url|
-        begin
-          q = "INSERT INTO `pictures` (username,url,size) VALUES (?,?,?)"
-          DB.execute(q,username,url,size)
-        rescue Exception => e
-          puts "Failed to #{q}; #{e}"
-        end
+        db_execute(
+          "INSERT INTO `pictures` (username,url,size) VALUES (?,?,?)",
+          [
+            username,
+            url,
+            size
+          ]
+        )
       end
     end
   end
 end
 
-def fetch_profile_details limit = 50
+def fetch_profile_details limit = 100
   usernames = DB.execute(
     "SELECT username
     FROM `profiles`
@@ -96,13 +84,15 @@ def fetch_profile_details limit = 50
   puts "Fetching #{usernames.size} profile pages"
 
   usernames.each_with_index do |username,index|
-    puts "#{index}/#{usernames.size} completed" if 0 == index % limit
-    begin
-      qr = "INSERT INTO raw_profiles (username,page) VALUES (?,?)"
-      DB.execute(qr,username,@ok.profile_page(username).body)
-    rescue Exception => e
-      puts "Failed to #{qr}; #{e}"
-    end
+    puts "#{index}/#{usernames.size} completed" if 0 == index % 25
+    
+    db_execute(
+      "INSERT INTO raw_profiles (username,page) VALUES (?,?)",
+      [
+        username,
+        @ok.profile_page(username).body
+      ]
+    )
   end
 end
 
@@ -113,19 +103,20 @@ def process_raw_profiles rate = 100
   count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
   puts "Updating #{count} profiles"
   
-  pages = count/rate
-  (count/rate+1).times do |iteration|
-    q = "SELECT username,page FROM `raw_profiles` LIMIT #{rate} OFFSET #{rate*iteration}"
-    raw_profiles = DB.execute(q)
-    raw_profiles.each_with_index do |row,index|
-      puts "#{index}/#{raw_profiles.size} completed" if 0 == index % 100
+  (count / rate + 1).times do |iteration|
+    DB.execute(
+      "SELECT username,page FROM `raw_profiles` LIMIT #{rate} OFFSET #{rate*iteration}"
+    ).each_with_index do |row,index|
+      puts "~#{index}/#{rate} completed" if 0 == index % 25
+      
       next unless p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
-      begin
-        qr = "REPLACE INTO profiles (username,sex,age,orientation,status,location,body_type) VALUES (?,?,?,?,?,?,?)"
-        DB.execute(qr,row.first,p[:sex],p[:age],p[:orientation],p[:status],p[:location],p[:body_type])
-      rescue Exception => e
-        puts "Failed to #{qr}; #{e}"
-      end
+      
+      columns = %w(username,sex,age,orientation,status,location,body_type)
+      
+      db_execute(
+        "REPLACE INTO profiles (#{columns*','}) VALUES (?,?,?,?,?,?,?)", 
+        columns.map { |param| prepared_params << p[param.to_sym] }
+      )
     end
   end
 end
@@ -169,6 +160,20 @@ def do_it_all
   fetch_profile_pics
   fetch_profile_details
   process_raw_profiles
+end
+
+def db_execute query, prepared_params = []
+  begin
+    if prepared_params && prepared_params.any?
+      DB.execute(query,*prepared_params)
+    else
+      DB.execute(query)
+    end
+  rescue Exception => e
+    puts "Failed to execute against db #{query}, #{prepared_params.inspect} -> #{e}"
+  end
+  
+  false
 end
 
 ########################-------------------------#######################

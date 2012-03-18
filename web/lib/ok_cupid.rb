@@ -69,6 +69,7 @@ class OkCupid
     body_type = btype_elem.next_element.inner_text
     
     {
+      :username => username,
       :age => aso[0],
       :sex => aso[1],
       :orientation => aso[2],
