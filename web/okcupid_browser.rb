@@ -1,12 +1,12 @@
 require 'sinatra/base'
 require 'sinatra/session'
+require "sinatra/reloader"
 
 # Strict Encoding Defaults
 Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
 class OKCBrowser < Sinatra::Base
-
   # Default to Development Environment
   # Include the Sinatra/Reloader so we don't
   # have to restart the web server for every code change
@@ -14,7 +14,7 @@ class OKCBrowser < Sinatra::Base
     set :environment, :production
   else
     set :environment, :development
-    require "sinatra/reloader"
+    register Sinatra::Reloader
   end
 
   # Setup Session controls
@@ -82,7 +82,6 @@ class OKCBrowser < Sinatra::Base
   end
   
   private
-
 
   ALLOWED_FILTERS = %w(location sex age body_type status)
 
