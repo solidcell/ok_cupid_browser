@@ -5,32 +5,25 @@ $.urlParam = function(name) {
 }
 
 $(document).ready(function() {
-	// load embedded JSON for locations
-	var locations = $.parseJSON($('#locations').html());
-	var body_types = $.parseJSON($('#body_types').html());
-
-	var location_select = $('#select_location');
-	var body_type_select = $('#select_body_type');
-	$.each(locations,function(ind,location) {
-		location_select.append("<option>"+location+"</option>");
-	});
-	$.each(body_types,function(ind,body_type) {
-		body_type_select.append("<option>"+body_type+"</option>");
-	});
-
-	if($.urlParam("location") != 0) {
-		location_select.val(decodeURIComponent($.urlParam("location")));
-	}
-	if($.urlParam("body_type") != 0) {
-		body_type_select.val(decodeURIComponent($.urlParam("body_type")));
-	}
-
-	location_select.change(function(){
-		window.location = "/?location="+$('#select_location').val()+"&body_type="+$('#select_body_type').val();
-	});
-	body_type_select.change(function(){
-		window.location = "/?location="+$('#select_location').val()+"&body_type="+$('#select_body_type').val();
-	});
+	// load embedded JSON for dropdowns
+  var filters = ["location", "body_type"]
+  filters.forEach(function(filter){
+    var collection = $.parseJSON($('#'+filter+'s').html());
+    var select = $('#select_'+filter);
+    $.each(collection,function(ind,element) {
+      select.append("<option>"+element+"</option>");
+    });
+    if($.urlParam(filter) != 0) {
+      select.val(decodeURIComponent($.urlParam(filter)));
+    }
+    select.change(function(){
+      var params = []
+      filters.forEach(function(f){
+        params.push(f+"="+$('#select_'+f).val());
+      })
+      window.location = "/?"+params.join("&");
+    });
+  });
 
   // Load embedded JSON into list templates
   image_paths = $("#image_paths").html();
@@ -47,18 +40,18 @@ $(document).ready(function() {
                                $(window).scrollTop())) {
       if (alreadyloading == false) {
         alreadyloading = true;
+        var params = { last: last };
+        filters.forEach(function(filter){
+          params[filter] = $('#select_'+filter).val();
+        });
         $.getJSON(
           "/pics",
-          {
-						last: last,
-						location: $('#select_location').val(),
-						body_type: $('#select_body_type').val()
-					},
+          params,
           function(data) {
             tempo.append(data);
             last += data.length;
             alreadyloading = false;
-						$('.tipper').tipsy();
+            $('.tipper').tipsy();
           }
         );
       }
