@@ -2,6 +2,8 @@ require 'sinatra/base'
 require 'sinatra/session'
 require "sinatra/reloader"
 
+require "#{File.expand_path(File.dirname(__FILE__))}/includes/initializer.rb"
+
 # Application Settings
 ALLOWED_FILTERS = %w(location sex age body_type status)
 Encoding.default_external = Encoding::UTF_8
@@ -77,7 +79,7 @@ class OKCBrowser < Sinatra::Base
                    when :location then "AND location LIKE '%CALIFORNIA%'"
                  end
 
-    SQLite3::Database.new("#{ROOT_PATH}/db/okcupid.db").execute(
+    Database.new.db_execute(
       "SELECT DISTINCT #{column}
         FROM profiles
         WHERE #{column} NOT NULL AND #{column} != '' #{conditions}
@@ -106,32 +108,22 @@ class OKCBrowser < Sinatra::Base
     # If no user filters provided we will defalt to California
     filter_string = "AND location LIKE '%CALIFORNIA%'" if filter_string.empty?
 
-    # Build our final Query, respecting any offsets
-    q = "SELECT pictures.username,
-          pictures.url,
-          profiles.created_at,
-          profiles.location
+    prepared_filters << count.to_i
+    prepared_filters << offset.to_i
+    
+    # Connect to the database
+    Database.new.db_execute(
+      "SELECT pictures.username, 
+        pictures.url, 
+        profiles.created_at, 
+        profiles.location
       FROM pictures
       JOIN profiles ON profiles.username = pictures.username
       WHERE size = 'small' #{filter_string}
       ORDER BY profiles.created_at DESC
-      LIMIT #{count.to_i} OFFSET #{offset.to_i}"
-
-    puts q
-
-    # Connect to the database
-    db = SQLite3::Database.new("#{ROOT_PATH}/db/okcupid.db")
-
-    # Execute the query and return the result
-    if prepared_filters.any?
-      puts "User Filters are being used. Values for SQL -> #{prepared_filters.inspect}"
-      db.execute(q,*prepared_filters)
-    else
-      db.execute(q)
-    end
+      LIMIT ? OFFSET ?",
+      prepared_filters
+    )
   end
-
-  # a handy debug method that only prints in non production environments
-  def puts msg; settings.environment != :production && super(msg); end
 
 end

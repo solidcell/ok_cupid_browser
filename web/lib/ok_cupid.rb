@@ -57,6 +57,10 @@ class OkCupid
 
     low = 1
     (max_profiles/step).times do
+      # Username Matches from OkCupid are returend as a JSON object 
+      # {'html'=>'html_snippet'} that contains only the div blocks
+      # for the users, to be injected into the DOM. Because of this, 
+      # we focus on just the body of the payload and regex out what we want
       p = get_url "https://www.okcupid.com/match?timekey=1&matchOrderBy=SPECIAL_BLEND&use_prefs=1&discard_prefs=1&low=#{low}&count=#{STEP}&ajax_load=1"
       p.body.scan(/usr-([_A-Za-z0-9]+)\\\"/).each do |username_array|
         usernames << username_array.first

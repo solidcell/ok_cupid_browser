@@ -2,69 +2,27 @@ require "rubygems"
 require 'bundler'
 
 Bundler.require
-require "#{File.expand_path(File.dirname(__FILE__))}/ok_cupid.rb"
 
-# Database Login
-DB = SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
+require "#{File.expand_path(File.dirname(__FILE__))}/../includes/initializer.rb"
 
-def db_execute query, prepared_params = []
-  begin
-    if prepared_params && prepared_params.any?
-      DB.execute(query,*prepared_params)
-    else
-      DB.execute(query)
-    end
-  rescue Exception => e
-    puts "Failed to execute against db #{query}, #{prepared_params.inspect} -> #{e}"
-  end
-
-  false
-end
-
-db_queries = [
-  "CREATE TABLE IF NOT EXISTS profiles (
-    username varchar(128) NOT NULL PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    location Varchar(128) DEFAULT NULL,
-    sex Varchar(16),
-    age INTEGER,
-    orientation Varchar(64),
-    body_type Varchar(64),
-    status Varchar(64) )",
-  "CREATE TABLE IF NOT EXISTS pictures (
-    username varchar(128) NOT NULL,
-    size varchar(32) NOT NULL,
-    url varchar(256) NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS raw_profiles (
-    username varchar(128) NOT NULL,
-    page TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
-  "CREATE TABLE IF NOT EXISTS hidden_profiles (
-    username varchar(128) NOT NULL,
-    profiles text NOT NULL)",
-  "PRAGMA encoding = 'UTF-8'"
-]
-# Uncomment to run queries
-db_queries.each { |query| db_execute query }
-
-@ok = OkCupid.new
-
-unless @ok.login
+unless (@ok = OkCupid.new) && @ok.login
   raise "Unable to continue, login failed"
 end
+
+DB = Database.new
 
 MAX_PROFILES = 2000
 STEP = 500
 def fetch_usernames
   @ok.match_usernames(MAX_PROFILES, STEP).each do |username|
-    db_execute("INSERT INTO `profiles` (username) VALUES (?)",[username])
+    DB.db_execute("INSERT INTO `profiles` (username) VALUES (?)",[username])
   end
 end
 
 def fetch_profile_pics
   # Find Users who we do not have any pictures for yet.
   # We can do a refresh some other time.
-  usernames = db_execute(
+  usernames = DB.db_execute(
     "SELECT username
      FROM profiles
      WHERE username NOT IN (SELECT DISTINCT username FROM pictures)"
@@ -76,7 +34,7 @@ def fetch_profile_pics
 
     @ok.profile_pics_for(username).each do |size,images|
       images.each do |url|
-        db_execute(
+        DB.db_execute(
           "INSERT INTO pictures (username,url,size)
            VALUES (?,?,?)",
           [
@@ -93,12 +51,12 @@ end
 def fetch_hidden_profiles
   puts "Fetching hidden profiles for #{@ok.username}"
 
-  db_execute("DELETE FROM hidden_profiles
-              WHERE username = ?",
-             [@ok.username])
-  db_execute(
-    "INSERT INTO hidden_profiles (username,profiles)
-     VALUES (?,?)",
+  DB.db_execute(
+    "DELETE FROM hidden_profiles WHERE username = ?",
+    [@ok.username]
+  )
+  DB.db_execute(
+    "INSERT INTO hidden_profiles (username,profiles) VALUES (?,?)",
     [
       @ok.username,
       @ok.hidden_profiles.join(",")
@@ -119,7 +77,7 @@ def fetch_profile_details limit = 100
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 25
 
-    db_execute(
+    DB.db_execute(
       "INSERT INTO raw_profiles (username,page) VALUES (?,?)",
       [
         username,
@@ -145,7 +103,7 @@ def process_raw_profiles rate = 100
       next unless p = @ok.profile_for(row.first,Nokogiri::HTML(row.last))
 
       columns = %w(username sex age orientation status location body_type)
-      db_execute(
+      DB.db_execute(
         "REPLACE INTO profiles (#{columns*','}) VALUES (?,?,?,?,?,?,?)",
         columns.map { |field_name| p[field_name.to_sym] }
       )
