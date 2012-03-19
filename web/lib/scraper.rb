@@ -63,7 +63,7 @@ def fetch_hidden_profiles
   )
 end
 
-def fetch_profile_details limit = 100
+def fetch_profile_details limit = 1000
   usernames = DB.execute(
     "SELECT username
      FROM `profiles`
