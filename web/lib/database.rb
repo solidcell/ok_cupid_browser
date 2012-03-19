@@ -49,12 +49,14 @@ class Database
         username varchar(128) NOT NULL,
         page TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
-      "CREATE TABLE IF NOT EXISTS hidden_profiles (
-        username varchar(128) NOT NULL,
-        profiles text NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS hidden_profiles (
+          username varchar(128) NOT NULL,
+          profiles text NOT NULL)",
+          "CREATE TABLE IF NOT EXISTS registered_users (
+            username varchar(128) NOT NULL)",
       "PRAGMA encoding = 'UTF-8'"
     ].each { |query| execute query }
   end
 end
 # To run "migrations" simply call
-#Database.new.migrate!
+# Database.new.migrate!

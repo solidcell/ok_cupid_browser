@@ -1,7 +1,24 @@
-<div class="password_field">
-  <p>What's the magic word?</p>
+<div class="login_field">
+  <p>To give you the best experience please provide your details</p>
   <form method="POST" action="/pass">
-    <input type="password" name="code">
-    <input type="submit" value="ok" />
+    <table>
+      <tr class='titles'>
+        <td>
+          <label for='username'>Username</label>
+        </td>
+        <td>
+          <label for='password'>Password</label>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input type="text" id='username' name="username">
+        </td>
+        <td>
+          <input type="password" id='password' name="password">
+        </td>
+      </tr>
+    </table>
+    <input type="submit" value="let's rock" />
   </form>
 </div>

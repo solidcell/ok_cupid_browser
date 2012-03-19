@@ -1,6 +1,5 @@
-require 'sinatra/base'
+require 'sinatra'
 require 'sinatra/session'
-require "sinatra/reloader"
 
 require "#{File.expand_path(File.dirname(__FILE__))}/includes/initializer.rb"
 
@@ -17,6 +16,7 @@ class OKCBrowser < Sinatra::Base
     set :environment, :production
   else
     set :environment, :development
+    require "sinatra/reloader"
     register Sinatra::Reloader
   end
 
@@ -47,6 +47,9 @@ class OKCBrowser < Sinatra::Base
     get_users(42, params[:last]).to_json
   end
 
+  get "/beta" do
+    erb :beta
+  end
 
   # Ask for Password
   get "/pass" do
@@ -57,9 +60,17 @@ class OKCBrowser < Sinatra::Base
 
   # Check Password
   post "/pass" do
-    if params[:code] && 'findmeone' == params[:code]
+    if params[:username] && params[:password]
+      user = Database.new.execute(
+        "SELECT username FROM registered_users WHERE username = ?",
+        [params[:username]]
+      )
+      
+      redirect '/beta' if user.empty?
+      
       session_start!
-      session[:valid] = true
+      session[:username] = user[0].first
+      session[:password] = params[:password]
       redirect '/'
     else
       redirect '/pass'
