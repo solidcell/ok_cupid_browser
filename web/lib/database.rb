@@ -6,16 +6,16 @@ class Database
   def puts msg
     super(msg) if ENV['SIN_VERBOSE'] && ENV['SIN_VERBOSE'].to_i > 1
   end
-  
+
   def initialize(existing_connection = nil)
     self.db_connection = existing_connection ||
-      SQLite3::Database.new( "#{File.expand_path(File.dirname(__FILE__))}/../db/okcupid.db" )
+      SQLite3::Database.new( "#{ROOT_PATH}/db/okcupid.db" )
   end
-  
+
   def execute query, prepared_params = []
     puts "Query: #{query}"
     puts "Prepared Params: #{prepared_params}"
-    
+
     result = nil
     begin
       result = if prepared_params && prepared_params.any?
@@ -29,7 +29,7 @@ class Database
 
     result || false
   end
-  
+
   def migrate!
     [
       "CREATE TABLE IF NOT EXISTS profiles (

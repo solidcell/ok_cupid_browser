@@ -1,7 +1,5 @@
-root_path = "#{File.expand_path(File.dirname(__FILE__))}/.."
-
-require "#{root_path}/lib/database.rb"
-require "#{root_path}/lib/ok_cupid.rb"
+require "#{ROOT_PATH}/lib/database.rb"
+require "#{ROOT_PATH}/lib/ok_cupid.rb"
 
 # -- Custom Modifications
 

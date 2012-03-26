@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'sinatra/session'
 
-require "#{File.expand_path(File.dirname(__FILE__))}/includes/initializer.rb"
+require "#{ROOT_PATH}/includes/initializer"
 
 # Application Settings
 ALLOWED_FILTERS = %w(location sex age body_type status)
@@ -43,7 +43,7 @@ class OKCBrowser < Sinatra::Base
   get "/pics" do
     session!
     content_type :json
-    
+
     get_users(42, params[:last]).to_json
   end
 
@@ -65,9 +65,9 @@ class OKCBrowser < Sinatra::Base
         "SELECT username FROM registered_users WHERE username = ?",
         [params[:username]]
       )
-      
+
       redirect '/beta' if user.empty?
-      
+
       session_start!
       session[:username] = user[0].first
       session[:password] = params[:password]
@@ -121,12 +121,12 @@ class OKCBrowser < Sinatra::Base
 
     prepared_filters << count.to_i
     prepared_filters << offset.to_i
-    
+
     # Connect to the database
     Database.new.execute(
-      "SELECT pictures.username, 
-        pictures.url, 
-        profiles.created_at, 
+      "SELECT pictures.username,
+        pictures.url,
+        profiles.created_at,
         profiles.location
       FROM pictures
       JOIN profiles ON profiles.username = pictures.username
