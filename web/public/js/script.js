@@ -57,5 +57,12 @@ $(document).ready(function() {
       }
     }
   });
+
 	$('.tipper').tipsy();
+
+  $('.picture').hover(function() {
+    $(this).find('.hide').fadeIn(100);
+  }, function() {
+    $(this).find('.hide').fadeOut(200);
+  });
 });
