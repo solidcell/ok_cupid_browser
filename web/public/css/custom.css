@@ -46,22 +46,22 @@ select#locations {
 	float:left;
 	font-size:16px;
 	font-weight:bold;
-	color: #1874CD; 
+	color: #1874CD;
 	text-shadow: 2px 1px 1px #f2f2f2;
 	padding-left:10px;
 }
 .beta_box {
 	text-align:center;
-	font-size:24px; 
-	color: #1874CD; 
+	font-size:24px;
+	color: #1874CD;
 	text-shadow: 2px 1px 1px #f2f2f2;
 	padding:10px;
 	margin:auto;
 }
 .login_field {
 	text-align:center;
-	font-size:36px; 
-	color: #1874CD; 
+	font-size:36px;
+	color: #1874CD;
 	text-shadow: 2px 1px 1px #f2f2f2;
 	padding:10px;
 	margin:auto;
@@ -78,25 +78,46 @@ select#locations {
 }
 .login_field input[type="password"], .login_field input[type="text"] {
 	border: 3px solid #AFC7C7;
-	-webkit-border-radius: 3px;  
-	-moz-border-radius: 3px;  
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
 	border-radius: 3px;
 	outline: none;
-	font-size:36px; 
-	color: #1874CD; 
+	font-size:36px;
+	color: #1874CD;
 	width: 200px;
-	text-shadow: 2px 1px 1px #f2f2f2;	
+	text-shadow: 2px 1px 1px #f2f2f2;
 }
 
 .login_field input[type="submit"] {
 	outline: none;
 	text-decoration: 1px dashed #333;
-	color: #1874CD; 
-	text-shadow: 2px 1px 1px #f2f2f2;	
+	color: #1874CD;
+	text-shadow: 2px 1px 1px #f2f2f2;
 }
 
 .left { float:left; }
 .right { float:right; }
 .clear {
 	clear:both;
+}
+
+.picture {
+  display: inline;
+  position: relative;
+  width: 100%;
+  vertical-align: bottom;
+}
+
+.picture .hide {
+  display: none;
+  position: absolute;
+  bottom: 10px;
+  left: 5px;
+  z-index: 10;
+  color: white;
+  font: bold 14px/5px Helvetica, Sans-Serif;
+  letter-spacing: 0px;
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 10px 10px 20px;
 }
