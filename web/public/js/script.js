@@ -61,19 +61,31 @@ $(document).ready(function() {
 	$('.tipper').tipsy();
 
   $('.picture').hover(function() {
-    $(this).find('.hide').fadeIn(100);
+    $(this).find('.hide').show();
   }, function() {
-    $(this).find('.hide').fadeOut(200);
+    $(this).find('.hide').hide();
+  });
+
+  $('.picture .hide').hover(function() {
+    $(this).addClass('hover');
+  }, function() {
+    $(this).removeClass('hover');
   });
 
   $('.hide').click(function() {
+    var hide_do = $(this).find('.prompt.do');
+    var hide_undo = $(this).find('.prompt.undo');
+    var spinner = $(this).find('.spinner');
+    hide_do.hide();
+    spinner.show();
     var data = {};
     var username = $(this).parent('.picture').attr('original-title');
     data[username] = "hide";
     $.post('/hide',
            data,
            function(reponse) {
-             console.log(reponse);
+             spinner.hide();
+             hide_undo.show();
            }
     );
   });

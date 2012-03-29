@@ -86,6 +86,8 @@ class OKCBrowser < Sinatra::Base
   post "/hide" do
     username = params.keys.first
     action = params[username]
+    sleep 1
+    "blah"
   end
 
   private

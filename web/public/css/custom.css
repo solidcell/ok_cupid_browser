@@ -115,9 +115,32 @@ select#locations {
   left: 5px;
   z-index: 10;
   color: white;
-  font: bold 14px/5px Helvetica, Sans-Serif;
+  font: bold 14px/17px Helvetica, Sans-Serif;
   letter-spacing: 0px;
   background: rgb(0, 0, 0); /* fallback color */
   background: rgba(0, 0, 0, 0.7);
-  padding: 10px 10px 10px 20px;
+  padding: 6px 10px 6px 6px;
+  width: 53px;
+  height: 16px;
+}
+
+.picture .hide.hover {
+  background: rgb(50, 50, 50); /* fallback color */
+  background: rgba(50, 50, 50, 0.7);
+}
+
+.picture .hide .prompt {
+  float: right;
+}
+
+.picture .hide .prompt.undo {
+  display: none;
+}
+
+.picture .hide .spinner {
+  display: none;
+  float: right;
+  padding: 0 8px 0 0;
+  margin: 0;
+  vertical-align: top;
 }
