@@ -60,17 +60,23 @@ $(document).ready(function() {
 
 	$('.tipper').tipsy();
 
-  $('.picture').hover(function() {
-    $(this).find('.hide').show();
-  }, function() {
-    $(this).find('.hide').hide();
-  });
+  $('.picture').hover(
+    function() {
+      $(this).find('.hide').show();
+    },
+    function() {
+      $(this).find('.hide').hide();
+    }
+  );
 
-  $('.picture .hide').hover(function() {
-    $(this).addClass('hover');
-  }, function() {
-    $(this).removeClass('hover');
-  });
+  $('.picture .hide').hover(
+    function() {
+      $(this).addClass('hover');
+    },
+    function() {
+      $(this).removeClass('hover');
+    }
+  );
 
   $('.hide').click(function() {
     var hide_do = $(this).find('.prompt.do');
