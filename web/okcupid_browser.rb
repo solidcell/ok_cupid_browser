@@ -83,6 +83,11 @@ class OKCBrowser < Sinatra::Base
     redirect '/'
   end
 
+  post "/hide" do
+    username = params.keys.first
+    action = params[username]
+  end
+
   private
 
   def get_values_from_column column

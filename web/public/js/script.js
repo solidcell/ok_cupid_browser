@@ -65,4 +65,16 @@ $(document).ready(function() {
   }, function() {
     $(this).find('.hide').fadeOut(200);
   });
+
+  $('.hide').click(function() {
+    var data = {};
+    var username = $(this).parent('.picture').attr('original-title');
+    data[username] = "hide";
+    $.post('/hide',
+           data,
+           function(reponse) {
+             console.log(reponse);
+           }
+    );
+  });
 });

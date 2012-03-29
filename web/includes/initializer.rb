@@ -11,5 +11,5 @@ end
 
 # a handy debug method that only prints in non production environments
 def puts msg
-  super("DEBUG:: #{msg}") if ENV['SIN_VERBOSE']
+  super("DEBUG:: #{msg}") unless ENV['SIN_NONVERBOSE']
 end
