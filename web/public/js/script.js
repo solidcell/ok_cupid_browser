@@ -84,14 +84,15 @@ $(document).ready(function() {
   $('.hide').click(function() {
     var t = $(this);
     var parent = t.parent('.picture');
-    var img = t.siblings('.profile_link').find('img')
     var hide_do = t.find('.prompt.do');
     var hide_undo = t.find('.prompt.undo');
     var spinner = t.find('.spinner');
     var username = parent.attr('original-title');
+    var imgs = $("[original-title='"+username+"'] .profile_link img")
     busy_usernames[username] = true;
     hide_do.hide();
     spinner.show();
+    imgs.addClass('translucent');
     var data = {};
     data[username] = "hide";
     $.post('/hide',
@@ -99,7 +100,6 @@ $(document).ready(function() {
            function(reponse) {
              spinner.hide();
              hide_undo.show();
-             img.addClass('translucent');
            }
     );
   });
