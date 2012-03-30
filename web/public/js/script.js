@@ -6,6 +6,7 @@ $.urlParam = function(name) {
 
 $(document).ready(function() {
   var busy_usernames = {};
+  var hovered_username;
 
 	// load embedded JSON for dropdowns
   var filters = ["location", "body_type"]
@@ -64,18 +65,21 @@ $(document).ready(function() {
 
   $('.picture').hover(
     function() {
-      $(this).find('.hide').show();
       var username = $(this).attr('original-title');
+      hovered_username = username;
       var container_set = $("[original-title='"+username+"']");
       var img_set = container_set.find(".profile_link img");
+      container_set.find('.hide').show();
       img_set.addClass('translucent80');
     },
     function() {
-      if (busy_usernames[$(this).attr('original-title')] != true)
-        $(this).find('.hide').hide();
+      hovered_username = "";
       var username = $(this).attr('original-title');
       var container_set = $("[original-title='"+username+"']");
       var img_set = container_set.find(".profile_link img");
+      //don't hide the button while it's spinning
+      if (busy_usernames[username] != true)
+        container_set.find('.hide').hide();
       img_set.removeClass('translucent80');
     }
   );
@@ -93,30 +97,36 @@ $(document).ready(function() {
     var t = $(this);
     var container = t.parent('.picture');
     var username = container.attr('original-title');
-    var container_set = $("[original-title='"+username+"']");
-    var hide_set = container_set.find('.hide');
-    var hide_do = t.find('.prompt.do');
-    var hide_do_set = container_set.find('.prompt.do');
-    var hide_undo = t.find('.prompt.undo');
-    var hide_undo_set = container_set.find('.prompt.undo');
-    var spinner = t.find('.spinner');
-    var img_set = container_set.find(".profile_link img");
-    busy_usernames[username] = true;
-    hide_do.hide();
-    spinner.show();
-    img_set.addClass('translucent25');
-    var data = {};
-    data[username] = "hide";
-    $.post('/hide',
-           data,
-           function(reponse) {
-             busy_usernames[username] = false;
-             hide_do_set.hide();
-             spinner.hide();
-             hide_undo_set.show();
-             hide_set.hide();
-           }
-    );
+    if (busy_usernames[username] != true) {
+      var container_set = $("[original-title='"+username+"']");
+      var hide_set = container_set.find('.hide');
+      var hide_do = t.find('.prompt.do');
+      var hide_do_set = container_set.find('.prompt.do');
+      var hide_undo = t.find('.prompt.undo');
+      var hide_undo_set = container_set.find('.prompt.undo');
+      var spinner = t.find('.spinner');
+      var spinner_set = container_set.find('.spinner');
+      var img_set = container_set.find(".profile_link img");
+      busy_usernames[username] = true;
+      hide_do_set.hide();
+      spinner_set.show();
+      var data = {};
+      data[username] = "hide";
+      $.post('/hide',
+             data,
+             function(reponse) {
+               busy_usernames[username] = false;
+               img_set.addClass('translucent25');
+               hide_do_set.hide();
+               spinner_set.hide();
+               hide_undo_set.show();
+               //ensure buttons are hidden
+               //if mouse left hover while dissabled
+               if (hovered_username != username)
+                 hide_set.hide();
+             }
+      );
+    }
     e.preventDefault();
   });
 });
