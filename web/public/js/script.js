@@ -110,10 +110,11 @@ $(document).ready(function() {
     $.post('/hide',
            data,
            function(reponse) {
+             busy_usernames[username] = false;
              hide_do_set.hide();
              spinner.hide();
              hide_undo_set.show();
-             hide_set.show();
+             hide_set.hide();
            }
     );
     e.preventDefault();
