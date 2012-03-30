@@ -63,7 +63,7 @@ $(document).ready(function() {
 
 	$('.tipper').tipsy();
 
-  $('.picture').hover(
+  $('#pictures li').hover(
     function() {
       var username = $(this).attr('username');
       hovered_username = username;
@@ -95,7 +95,7 @@ $(document).ready(function() {
 
   $('.hide').click(function(e) {
     var t = $(this);
-    var container = t.parent('.picture');
+    var container = t.parents('#pictures li');
     var username = container.attr('username');
     if (busy_usernames[username] != true) {
       var container_set = $("[username='"+username+"']");
