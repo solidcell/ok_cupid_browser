@@ -117,16 +117,16 @@ select#locations {
   color: white;
   font: bold 14px/17px Helvetica, Sans-Serif;
   letter-spacing: 0px;
-  background: rgb(0, 0, 0); /* fallback color */
-  background: rgba(0, 0, 0, 0.7);
   padding: 6px 10px 6px 6px;
   width: 53px;
   height: 16px;
+  background: rgb(50, 50, 50); /* fallback color */
+  background: rgba(50, 50, 50, 0.7);
 }
 
 .picture .hide.hover {
-  background: rgb(50, 50, 50); /* fallback color */
-  background: rgba(50, 50, 50, 0.7);
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .picture .hide .prompt {
