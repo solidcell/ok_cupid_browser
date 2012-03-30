@@ -65,17 +65,17 @@ $(document).ready(function() {
 
   $('.picture').hover(
     function() {
-      var username = $(this).attr('original-title');
+      var username = $(this).attr('username');
       hovered_username = username;
-      var container_set = $("[original-title='"+username+"']");
+      var container_set = $("[username='"+username+"']");
       var img_set = container_set.find(".profile_link img");
       container_set.find('.hide').show();
       img_set.addClass('translucent80');
     },
     function() {
       hovered_username = "";
-      var username = $(this).attr('original-title');
-      var container_set = $("[original-title='"+username+"']");
+      var username = $(this).attr('username');
+      var container_set = $("[username='"+username+"']");
       var img_set = container_set.find(".profile_link img");
       //don't hide the button while it's spinning
       if (busy_usernames[username] != true)
@@ -96,9 +96,9 @@ $(document).ready(function() {
   $('.hide').click(function(e) {
     var t = $(this);
     var container = t.parent('.picture');
-    var username = container.attr('original-title');
+    var username = container.attr('username');
     if (busy_usernames[username] != true) {
-      var container_set = $("[original-title='"+username+"']");
+      var container_set = $("[username='"+username+"']");
       var hide_set = container_set.find('.hide');
       var hide_do = t.find('.prompt.do');
       var hide_do_set = container_set.find('.prompt.do');
