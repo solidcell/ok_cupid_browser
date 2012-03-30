@@ -89,11 +89,12 @@ $(document).ready(function() {
     }
   );
 
-  $('.hide').click(function() {
+  $('.hide').click(function(e) {
     var t = $(this);
     var container = t.parent('.picture');
     var username = container.attr('original-title');
     var container_set = $("[original-title='"+username+"']");
+    var hide_set = container_set.find('.hide');
     var hide_do = t.find('.prompt.do');
     var hide_do_set = container_set.find('.prompt.do');
     var hide_undo = t.find('.prompt.undo');
@@ -112,7 +113,9 @@ $(document).ready(function() {
              hide_do_set.hide();
              spinner.hide();
              hide_undo_set.show();
+             hide_set.show();
            }
     );
+    e.preventDefault();
   });
 });
