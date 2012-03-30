@@ -144,3 +144,8 @@ select#locations {
   margin: 0;
   vertical-align: top;
 }
+
+
+.picture .profile_link img.translucent {
+  opacity: .25;
+}

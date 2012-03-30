@@ -5,6 +5,8 @@ $.urlParam = function(name) {
 }
 
 $(document).ready(function() {
+  var busy_usernames = {};
+
 	// load embedded JSON for dropdowns
   var filters = ["location", "body_type"]
   filters.forEach(function(filter){
@@ -65,7 +67,8 @@ $(document).ready(function() {
       $(this).find('.hide').show();
     },
     function() {
-      $(this).find('.hide').hide();
+      if (busy_usernames[$(this).attr('original-title')] != true)
+        $(this).find('.hide').hide();
     }
   );
 
@@ -79,19 +82,24 @@ $(document).ready(function() {
   );
 
   $('.hide').click(function() {
-    var hide_do = $(this).find('.prompt.do');
-    var hide_undo = $(this).find('.prompt.undo');
-    var spinner = $(this).find('.spinner');
+    var t = $(this);
+    var parent = t.parent('.picture');
+    var img = t.siblings('.profile_link').find('img')
+    var hide_do = t.find('.prompt.do');
+    var hide_undo = t.find('.prompt.undo');
+    var spinner = t.find('.spinner');
+    var username = parent.attr('original-title');
+    busy_usernames[username] = true;
     hide_do.hide();
     spinner.show();
     var data = {};
-    var username = $(this).parent('.picture').attr('original-title');
     data[username] = "hide";
     $.post('/hide',
            data,
            function(reponse) {
              spinner.hide();
              hide_undo.show();
+             img.addClass('translucent');
            }
     );
   });
