@@ -65,10 +65,18 @@ $(document).ready(function() {
   $('.picture').hover(
     function() {
       $(this).find('.hide').show();
+      var username = $(this).attr('original-title');
+      var container_set = $("[original-title='"+username+"']");
+      var img_set = container_set.find(".profile_link img");
+      img_set.addClass('translucent80');
     },
     function() {
       if (busy_usernames[$(this).attr('original-title')] != true)
         $(this).find('.hide').hide();
+      var username = $(this).attr('original-title');
+      var container_set = $("[original-title='"+username+"']");
+      var img_set = container_set.find(".profile_link img");
+      img_set.removeClass('translucent80');
     }
   );
 
@@ -83,23 +91,27 @@ $(document).ready(function() {
 
   $('.hide').click(function() {
     var t = $(this);
-    var parent = t.parent('.picture');
+    var container = t.parent('.picture');
+    var username = container.attr('original-title');
+    var container_set = $("[original-title='"+username+"']");
     var hide_do = t.find('.prompt.do');
+    var hide_do_set = container_set.find('.prompt.do');
     var hide_undo = t.find('.prompt.undo');
+    var hide_undo_set = container_set.find('.prompt.undo');
     var spinner = t.find('.spinner');
-    var username = parent.attr('original-title');
-    var imgs = $("[original-title='"+username+"'] .profile_link img")
+    var img_set = container_set.find(".profile_link img");
     busy_usernames[username] = true;
     hide_do.hide();
     spinner.show();
-    imgs.addClass('translucent');
+    img_set.addClass('translucent25');
     var data = {};
     data[username] = "hide";
     $.post('/hide',
            data,
            function(reponse) {
+             hide_do_set.hide();
              spinner.hide();
-             hide_undo.show();
+             hide_undo_set.show();
            }
     );
   });
