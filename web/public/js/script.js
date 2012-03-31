@@ -4,6 +4,10 @@ $.urlParam = function(name) {
     );
 }
 
+function initTooltips() {
+  $('.tipper').tipsy({offset:-5, title:'username'});
+}
+
 $(document).ready(function() {
   var busy_usernames = {};
   var hovered_username;
@@ -54,14 +58,14 @@ $(document).ready(function() {
             tempo.append(data);
             last += data.length;
             alreadyloading = false;
-            $('.tipper').tipsy();
+            initTooltips();
           }
         );
       }
     }
   });
 
-	$('.tipper').tipsy();
+  initTooltips();
 
   $('#pictures li').hover(
     function() {
