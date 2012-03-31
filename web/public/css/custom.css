@@ -6,7 +6,7 @@ a {
   display: inline-block;
 }
 
-#pictures .picture img {
+.profile_link img {
   margin: 5px;
 	cursor:pointer;
 	text-align:right;
@@ -144,9 +144,9 @@ select#locations {
   vertical-align: top;
 }
 
-.picture .profile_link img.greyed {
+.profile_link img.greyed {
   opacity: .25 !important;
 }
-.picture .profile_link img.hover {
+.profile_link img.hover {
   opacity: .85;
 }
