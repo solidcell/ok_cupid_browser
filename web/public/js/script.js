@@ -10,6 +10,7 @@ function initTooltips() {
 
 $(document).ready(function() {
   var busy_usernames = {};
+  var hidden_usernames = {};
   var hovered_username;
 
 	// load embedded JSON for dropdowns
@@ -112,24 +113,47 @@ $(document).ready(function() {
       var spinner_set = container_set.find('.spinner');
       var img_set = container_set.find(".profile_link img");
       busy_usernames[username] = true;
-      hide_do_set.hide();
-      spinner_set.show();
-      var data = {};
-      data[username] = "hide";
-      $.post('/hide',
-             data,
-             function(reponse) {
-               busy_usernames[username] = false;
-               img_set.addClass('greyed');
-               hide_do_set.hide();
-               spinner_set.hide();
-               hide_undo_set.show();
-               //ensure buttons are hidden
-               //if mouse left hover while dissabled
-               if (hovered_username != username)
-                 hide_set.hide();
-             }
-      );
+      if (hidden_usernames[username] != true) {
+        hide_do_set.hide();
+        spinner_set.show();
+        var data = {};
+        data[username] = "hide";
+        $.post('/hide',
+               data,
+               function(reponse) {
+                 hidden_usernames[username] = true;
+                 busy_usernames[username] = false;
+                 img_set.addClass('greyed');
+                 hide_do_set.hide();
+                 spinner_set.hide();
+                 hide_undo_set.show();
+                 //ensure buttons are hidden
+                 //if mouse left hover while dissabled
+                 if (hovered_username != username)
+                   hide_set.hide();
+               }
+        );
+      } else {
+        hide_undo_set.hide();
+        spinner_set.show();
+        var data = {};
+        data[username] = "unhide";
+        $.post('/hide',
+               data,
+               function(reponse) {
+                 hidden_usernames[username] = false;
+                 busy_usernames[username] = false;
+                 img_set.removeClass('greyed');
+                 hide_undo_set.hide();
+                 spinner_set.hide();
+                 hide_do_set.show();
+                 //ensure buttons are hidden
+                 //if mouse left hover while dissabled
+                 if (hovered_username != username)
+                   hide_set.hide();
+               }
+        );
+      }
     }
     e.preventDefault();
   });
