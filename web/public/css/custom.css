@@ -144,9 +144,9 @@ select#locations {
   vertical-align: top;
 }
 
-.picture .profile_link img.translucent25 {
+.picture .profile_link img.greyed {
   opacity: .25 !important;
 }
-.picture .profile_link img.translucent80 {
-  opacity: .80;
+.picture .profile_link img.hover {
+  opacity: .85;
 }

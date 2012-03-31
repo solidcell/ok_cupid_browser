@@ -70,7 +70,7 @@ $(document).ready(function() {
       var container_set = $("[username='"+username+"']");
       var img_set = container_set.find(".profile_link img");
       container_set.find('.hide').show();
-      img_set.addClass('translucent80');
+      img_set.addClass('hover');
     },
     function() {
       hovered_username = "";
@@ -80,7 +80,7 @@ $(document).ready(function() {
       //don't hide the button while it's spinning
       if (busy_usernames[username] != true)
         container_set.find('.hide').hide();
-      img_set.removeClass('translucent80');
+      img_set.removeClass('hover');
     }
   );
 
@@ -116,7 +116,7 @@ $(document).ready(function() {
              data,
              function(reponse) {
                busy_usernames[username] = false;
-               img_set.addClass('translucent25');
+               img_set.addClass('greyed');
                hide_do_set.hide();
                spinner_set.hide();
                hide_undo_set.show();
