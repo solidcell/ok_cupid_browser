@@ -2,6 +2,9 @@
 
 A Ruby & Sinatra-based web application that improves the browsing experience to okcupid.com. Given a user name, fetch & display your matches.
 
+To protect the identify of those profile users' the images have been blurred in the following screenshot. 
+![screenshot of application running](http://i.imgur.com/WudUN.jpg)
+
 ## Requirements
 * Sqlite3
 * Ruby 1.8.7+
@@ -26,9 +29,9 @@ tool will use to store profile data for offline viewing.
 Finally, you'll need to scrape some data from OkCupid to be able to view profiles. To do this, simply call:
 
 ```
-bundle exec ruby lib/scraper.rb do_it_all okcupid_username okcupid_password
+OKNAME='ok_cupid_username' OKPASS='ok_user_password' bundle exec ruby lib/scraper.rb do_it_all
 ```
-
+The above command will take a while to work as it goes and fetches ~200 profiles per run. You can modify this in the code if you want to pull more or less.
 To view the results of the scraping you can launch the web app from the /web directory like so:
 
 ```

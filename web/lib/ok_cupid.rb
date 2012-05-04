@@ -1,13 +1,14 @@
 class OkCupid
   attr_reader :username
 
-  def initialize username, password
-    raise "You must pass in a username & password" unless username && password
+  def initialize
+    raise "You must pass in a username & password" unless ENV['OKNAME'] && ENV['OKPASS']
+    
+    @username = ENV['OKNAME']
+    @password = ENV['OKPASS']
     
     @agent = Mechanize.new
     @agent.user_agent_alias = "Mac Safari"
-    @username = username
-    @password = password
   end
 
   def login
@@ -22,6 +23,11 @@ class OkCupid
     end
 
     page = @agent.get "https://www.okcupid.com/"
+
+    if page.body.include? "Prove you're human"
+      puts "Captcha blocked this login request. Go to https://www.okcupid.com/, login regularly. Then log out and run this again."
+      return false
+    end
 
     !page.body.include? 'name="loginf"'
   end
@@ -52,7 +58,7 @@ class OkCupid
   end
 
   # filters = ["JOIN","SPECIAL_BLEND"]
-  def match_usernames max_profiles = 2000, step = 500
+  def match_usernames max_profiles = 1000, step = 500
     usernames = []
 
     low = 1
