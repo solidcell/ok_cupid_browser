@@ -1,4 +1,5 @@
 require 'sqlite3'
+require "#{File.expand_path(File.dirname(__FILE__))}/../includes/initializer.rb"
 
 class Database
   attr_accessor :db_connection
@@ -58,5 +59,9 @@ class Database
     ].each { |query| execute query }
   end
 end
-# To run "migrations" simply call
-# Database.new.migrate!
+
+if ARGV.any? && "setup" == ARGV[0]
+  puts "Setting up database ..."
+  Database.new.migrate!
+  puts "Completed!"
+end

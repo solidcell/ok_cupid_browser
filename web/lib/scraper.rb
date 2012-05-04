@@ -5,13 +5,11 @@ Bundler.require
 
 require "#{File.expand_path(File.dirname(__FILE__))}/../includes/initializer.rb"
 
-@ok = OkCupid.new
-raise "Unable to continue, login failed" unless @ok.login
-
 DB = Database.new
 
-MAX_PROFILES = 2000
-STEP = 500
+MAX_PROFILES = 500
+STEP = 200
+
 def fetch_usernames
   @ok.match_usernames(MAX_PROFILES, STEP).each do |username|
     DB.execute("INSERT INTO `profiles` (username) VALUES (?)",[username])
@@ -27,7 +25,7 @@ def fetch_profile_pics
      WHERE username NOT IN (SELECT DISTINCT username FROM pictures)"
   ).map(&:pop)
 
-  puts "Fetching #{usernames.size} ~#{usernames.size*3} pictures"
+  puts "Fetching #{usernames.size} profile pictures (about ~#{usernames.size*3} pictures)"
   usernames.each_with_index do |username,index|
     puts "#{index}/#{usernames.size} completed" if 0 == index % 25
 
@@ -63,7 +61,7 @@ def fetch_hidden_profiles
   )
 end
 
-def fetch_profile_details limit = 1000
+def fetch_profile_details limit = 200
   usernames = DB.execute(
     "SELECT username
      FROM `profiles`
@@ -89,7 +87,7 @@ end
 # Process Raw Profiles out of the SQL Database
 # For each Page load it into Nokogiri::HTML
 # And extract the data desired, loading it back into the profiles table
-def process_raw_profiles rate = 100
+def process_raw_profiles rate = 200
   count = DB.execute("SELECT count(0) from raw_profiles").flatten[0].to_i
   puts "Updating #{count} profiles"
 
@@ -145,8 +143,8 @@ def download_pictures
 end
 
 def do_it_all
-  fetch_usernames
-  fetch_profile_pics
+#  fetch_usernames
+#  fetch_profile_pics
   fetch_profile_details
   process_raw_profiles
 end
@@ -163,10 +161,20 @@ targets = {
   "download_pictures" => "For the stored profile pics in SQL, download the raw files"
 }
 
-if targets.keys.include? ARGV[0]
+if targets.keys.include?(ARGV[0])
+  @ok = OkCupid.new
+  unless @ok.login
+    puts "Unable to continue, login failed"
+    exit
+  end
+
+  # Just to make things easier, if you scrape someones data add them to the
+  # registered_users table
+  puts "Adding #{@ok.username} as a registered_user"
+  DB.execute("INSERT INTO registered_users (username) VALUES (?)", [@ok.username])
+
   self.send ARGV[0]
 else
   puts "Usage: ruby scraper.rb command"
-  puts "The support commenads are as follows:"
   targets.each { |k,v| puts "#{k} [#{v}]" }
 end

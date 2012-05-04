@@ -1,0 +1,10 @@
+okcupid.db is a SQLite file necessary for the application to run.
+If you don't see it in here, pelase read the main read ... or run 
+from the web directory:
+
+>> bundle exec ruby lib/database.rb setup
+
+you should now have an okcupid.db file generated and migrations run on it.
+
+If you want to store your DB in Git, or wherever, then you should fork the project
+and create a private repo & change the .gitignore file.
