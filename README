@@ -40,10 +40,6 @@ Setting the Environment variable SIN_VERBOSE to:
 0 or 1: output debug
 2: output database debug queries
 
-# Add UNAME/PASS To Scraper's invocation of the OkCupid API Class.new which should be argument #2 and #3
-# # Remove UNAME/PASS and throw error if not passed in!
-#
-# bundle exec ruby lib/
 
 # ************ Facial Recognition Resources **************
 # http://jeffkreeftmeijer.com/2011/comparing-images-and-creating-image-diffs/
@@ -57,16 +53,3 @@ Setting the Environment variable SIN_VERBOSE to:
 # http://www.kooaba.com/en/home/developers
 # http://www.betafaceapi.com/
 # http://face.com/
-# ******************** AJAX solutions ********************
-# just a frame with city names when page is requested
-#
-# Mike) you select one, it requests 200 from that city
-# Jesse) while user hasn't yet clicked, load the first 100 from each city.
-#        once one is selected, request only more from that location
-#
-# always keep 100 urls below the window ready to be lazy loaded
-#
-# load the next 50 images below the current bottom
-#
-# while not doing anything else, request the first 100 urls from each city
-# if you don't already have them
