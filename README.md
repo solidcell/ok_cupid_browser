@@ -2,7 +2,7 @@
 
 A Ruby & Sinatra-based web application that improves the browsing experience to okcupid.com. Given a user name, fetch & display your matches.
 
-To protect the identify of those profile users' the images have been blurred in the following screenshot. 
+To protect the identity of those profile users' the images have been blurred in the following screenshot. 
 ![screenshot of application running](http://i.imgur.com/WudUN.jpg)
 
 ## Requirements
