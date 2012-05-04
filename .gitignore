@@ -1,0 +1,9 @@
+.bundle
+.gem
+vendor/
+tmp/
+*.swp
+*/log/*
+.DS_Store
+.rvmrc
+db/okcupid.db
